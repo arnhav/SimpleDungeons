@@ -145,18 +145,20 @@ public class DungeonUtil {
         String world = oldChunk.getWorld();
         int x = oldChunk.getX();
         int z = oldChunk.getZ();
-        if (direction == Direction.NORTH)
-            x-=1;
-        if (direction == Direction.SOUTH) {
+        if (direction == Direction.NORTH) {
             x-=1;
             z-=2;
         }
+        if (direction == Direction.SOUTH) {
+            x-=1;
+        }
         if (direction == Direction.EAST) {
+            x+=3;
+        }
+        if (direction == Direction.WEST) {
             x+=3;
             z-=1;
         }
-        if (direction == Direction.WEST)
-            z-=1;
         return new DungeonChunk(world, x, z);
     }
 
