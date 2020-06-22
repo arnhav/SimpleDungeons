@@ -1,6 +1,7 @@
 package com.tyrriel.simpledungeons.util;
 
 import com.sk89q.worldedit.util.Direction;
+import com.tyrriel.simpledungeons.data.FileManager;
 import com.tyrriel.simpledungeons.objects.*;
 import com.tyrriel.simpledungeons.objects.enums.RoomConfiguration;
 import org.bukkit.*;
@@ -28,7 +29,7 @@ public class DungeonUtil {
         String fileName = getRoomName(roomConfiguration);
         DungeonRoom room = new DungeonRoom(chunk, level, roomConfiguration, fileName);
         dungeon.addRoom(room);
-        System.out.println(room + " | " + roomConfiguration.toString() + " | " + fileName);
+        FileManager.log(room.toString());
 
         if (DirectionUtil.doesRoomGoDownInDirection(direction, roomConfiguration)){
             level--;
@@ -61,14 +62,11 @@ public class DungeonUtil {
             return count;
         } else {
             String fileName = getRoomName(roomConfiguration);
-            System.out.println("Hit path length");
             DungeonChunk newChunk = getNextChunkInDirection(chunk, direction);
-            System.out.println("Made new chunk");
             if (isAlreadyRoom(dungeon, newChunk, level)) return count;
-            System.out.println("Chunk does not exists, Made new");
-            DungeonRoom room = new DungeonRoom(chunk, level, roomConfiguration, fileName);
+            DungeonRoom room = new DungeonRoom(newChunk, level, roomConfiguration, fileName);
             dungeon.addRoom(room);
-            System.out.println(room + " | " + roomConfiguration.toString() + " | " + fileName + " | ENDCAP");
+            FileManager.log(room + " | ENDCAP");
             return count;
         }
     }

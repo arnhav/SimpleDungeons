@@ -55,15 +55,15 @@ public class DungeonGenerator {
         // North
         DungeonUtil.goInDirection(dungeon, Direction.NORTH, worldName, 0, 0, dungeonConfiguration.getPathLength(), 0, 0, tilesetFolder);
         // South
-        //DungeonUtil.goInDirection(dungeon, Direction.SOUTH, worldName, 0, 0, dungeonConfiguration.getPathLength(), 0, 0, tilesetFolder);
+        DungeonUtil.goInDirection(dungeon, Direction.SOUTH, worldName, 0, 0, dungeonConfiguration.getPathLength(), 0, 0, tilesetFolder);
         // East
-        //DungeonUtil.goInDirection(dungeon, Direction.EAST, worldName, 0, 0, dungeonConfiguration.getPathLength(), 0, 0, tilesetFolder);
+        DungeonUtil.goInDirection(dungeon, Direction.EAST, worldName, 0, 0, dungeonConfiguration.getPathLength(), 0, 0, tilesetFolder);
         // West
-        //DungeonUtil.goInDirection(dungeon, Direction.WEST, worldName, 0, 0, dungeonConfiguration.getPathLength(), 0, 0, tilesetFolder);
+        DungeonUtil.goInDirection(dungeon, Direction.WEST, worldName, 0, 0, dungeonConfiguration.getPathLength(), 0, 0, tilesetFolder);
 
         // Generate Boss Room
-        /*
-        ArrayList<DungeonRoom> endcaps = DungeonUtil.getEndCaps();
+
+        ArrayList<DungeonRoom> endcaps = DungeonUtil.getEndCaps(dungeon);
         DungeonRoom dungeonRoom = endcaps.get((int) (Math.random() * ((endcaps.size() - 1) + 1)));
         DungeonChunk chunk = dungeonRoom.getChunk();
         RoomConfiguration roomConfiguration = dungeonRoom.getRoomConfiguration();
@@ -71,14 +71,14 @@ public class DungeonGenerator {
         Direction direction = DirectionUtil.getFacing(roomConfiguration);
         DungeonChunk pasteChunk = DungeonUtil.getBossPasteChunk(chunk, direction);
 
-        DungeonUtil.addBossRooms(dungeonRoom);
-        */
-        /*
-        world.getChunkAtAsync(pasteChunk.getX(), pasteChunk.getZ()).thenAccept(c ->{
-            pasteFile(tilesetFolder, getRoomName(RoomConfiguration.valueOf("BOSS_" + direction.toString())),
-                    world, pasteChunk.getX()*16, ((level*16)), pasteChunk.getZ()*16);
-        });
-        */
+        DungeonUtil.addBossRooms(dungeon, dungeonRoom);
+
+        dungeon.setBossPasteRoom(
+                new DungeonRoom(pasteChunk, level,
+                        RoomConfiguration.valueOf("BOSS_" + direction.toString()),
+                        DungeonUtil.getRoomName(RoomConfiguration.valueOf("BOSS_" + direction.toString()
+                        ))));
+
         DungeonManager.dungeons.put(worldName, dungeon);
 
         System.out.println("Dungeon generation complete!");
@@ -123,11 +123,24 @@ public class DungeonGenerator {
                         DungeonUtil.pasteFile(tilesetFolder, fileName, world, chunk.getX() * 16, ((level * 16)), chunk.getZ() * 16);
                     }
 
-                    System.out.println(dungeon.getRooms().indexOf(room) + "/" + (dungeon.getRooms().size()-1) + " completed...");
+                    FileManager.log(dungeon.getRooms().indexOf(room) + "/" + (dungeon.getRooms().size()-1) + " completed...");
                 }
 
-                Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, this, 10);
+                Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, this, 20);
             }
         }, 0);
+
+        DungeonRoom bossPasteRoom = dungeon.getBossPasteRoom();
+        DungeonChunk pasteChunk = bossPasteRoom.getChunk();
+
+        if (world.isChunkLoaded(pasteChunk.getX(), pasteChunk.getZ())){
+            DungeonUtil.pasteFile(tilesetFolder, bossPasteRoom.getRoomName(),
+                    world, pasteChunk.getX()*16, ((bossPasteRoom.getLevel()*16)), pasteChunk.getZ()*16);
+        } else {
+            world.getChunkAtAsync(pasteChunk.getX(), pasteChunk.getZ()).thenAccept(c ->{
+                DungeonUtil.pasteFile(tilesetFolder, bossPasteRoom.getRoomName(),
+                        world, pasteChunk.getX()*16, ((bossPasteRoom.getLevel()*16)), pasteChunk.getZ()*16);
+            });
+        }
     }
 }

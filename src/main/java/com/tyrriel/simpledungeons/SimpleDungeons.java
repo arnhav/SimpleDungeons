@@ -22,6 +22,7 @@ public final class SimpleDungeons extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new DungeonListener(), this);
 
         FileManager.createConfig(this);
+        FileManager.createLogFile(this);
     }
 
     @Override

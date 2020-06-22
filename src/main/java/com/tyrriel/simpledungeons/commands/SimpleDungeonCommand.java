@@ -25,12 +25,21 @@ public class SimpleDungeonCommand implements CommandExecutor {
 
         if (!sender.isOp()) return false;
 
-        if (args.length == 0 || args.length == 1){
+        if (args.length == 0){
             sender.sendMessage("SimpleDungeon Help");
             sender.sendMessage("/sd create <tileset> <worldname>");
             sender.sendMessage("/sd delete <worldname>");
             sender.sendMessage("/sd enter <worldname>");
             sender.sendMessage("/sd leave");
+        }
+
+        if (args[0].equalsIgnoreCase("leave")){
+            if (!(sender instanceof Player)) return false;
+            if (!DungeonManager.playersInDungeon.containsKey(sender)) return false;
+            Location location = DungeonManager.playerLocations.get(sender);
+            ((Player) sender).teleport(location);
+            DungeonManager.playersInDungeon.remove(sender);
+            DungeonManager.playerLocations.remove(sender);
         }
 
         if (args.length < 2) return false;
@@ -75,15 +84,6 @@ public class SimpleDungeonCommand implements CommandExecutor {
             DungeonManager.playerLocations.put(p, p.getLocation());
             Location location = new Location(world, 7, 4, 6);
             p.teleport(location);
-        }
-
-        if (args[0].equalsIgnoreCase("leave")){
-            if (!(sender instanceof Player)) return false;
-            if (!DungeonManager.playersInDungeon.containsKey(sender)) return false;
-            Location location = DungeonManager.playerLocations.get(sender);
-            ((Player) sender).teleport(location);
-            DungeonManager.playersInDungeon.remove(sender);
-            DungeonManager.playerLocations.remove(sender);
         }
 
         return true;

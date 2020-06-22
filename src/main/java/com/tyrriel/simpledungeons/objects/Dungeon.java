@@ -16,6 +16,8 @@ public class Dungeon {
     private ArrayList<Chest> openedChest;
     private boolean bossDefeated = false;
 
+    private DungeonRoom bossPasteRoom;
+
     public Dungeon(String name, String tileset, String world, ArrayList<DungeonRoom> rooms, LinkedBlockingQueue<DungeonRoom> roomsToPaste, DungeonConfiguration dungeonConfiguration){
         setName(name);
         setTileset(tileset);
@@ -59,6 +61,10 @@ public class Dungeon {
         this.bossDefeated = bossDefeated;
     }
 
+    public void setBossPasteRoom(DungeonRoom bossPasteRoom) {
+        this.bossPasteRoom = bossPasteRoom;
+    }
+
     public String getName() {
         return name;
     }
@@ -89,6 +95,10 @@ public class Dungeon {
 
     public boolean isBossDefeated() {
         return bossDefeated;
+    }
+
+    public DungeonRoom getBossPasteRoom() {
+        return bossPasteRoom;
     }
 
     public void addRoom(DungeonRoom dungeonRoom){

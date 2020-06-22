@@ -9,12 +9,17 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class FileManager {
 
     public static FileConfiguration config;
+
+    private static File log;
 
     public static void createConfig(JavaPlugin plugin){
         try {
@@ -30,6 +35,24 @@ public class FileManager {
                 plugin.getLogger().info("config.yml found, loading!");
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void createLogFile(JavaPlugin plugin) {
+        File logsFolder = new File(plugin.getDataFolder(), "logs");
+        if (!logsFolder.exists()){
+            logsFolder.mkdirs();
+        }
+        Date date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        log = new File(logsFolder, format.format(date) + ".txt");
+        FileWriter fileWriter;
+        try {
+            fileWriter = new FileWriter(log, true);
+            PrintWriter pw = new PrintWriter(fileWriter);
+            pw.println("-===SimpleRegeneration Log " + format.format(date) + "===-");
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -96,6 +119,20 @@ public class FileManager {
             }
         }
         return (path.delete());
+    }
+
+    public static void log(String message){
+        Date date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(log, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try(PrintWriter pw = new PrintWriter(fileWriter) ) {
+            pw.println("[" + format.format(date) + "] " + message);
+        }
     }
 
 }
