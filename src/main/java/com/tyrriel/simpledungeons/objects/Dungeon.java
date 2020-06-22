@@ -103,6 +103,9 @@ public class Dungeon {
 
     public void addRoom(DungeonRoom dungeonRoom){
         rooms.add(dungeonRoom);
+    }
+
+    public void addRoomToPaste(DungeonRoom dungeonRoom){
         roomsToPaste.add(dungeonRoom);
     }
 

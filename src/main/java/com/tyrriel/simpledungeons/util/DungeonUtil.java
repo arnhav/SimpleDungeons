@@ -27,19 +27,27 @@ public class DungeonUtil {
         if (isAlreadyRoom(dungeon, chunk, level)) return;
 
         String fileName = getRoomName(roomConfiguration);
+
         DungeonRoom room = new DungeonRoom(chunk, level, roomConfiguration, fileName);
-        dungeon.addRoom(room);
-        FileManager.log(room.toString());
 
         if (DirectionUtil.doesRoomGoDownInDirection(direction, roomConfiguration)){
+            DungeonRoom roomBelow = new DungeonRoom(chunk, level-1, roomConfiguration, fileName);
+            if (isAlreadyRoom(dungeon, chunk, level-1)) return;
+            dungeon.addRoom(roomBelow);
+            dungeon.addRoomToPaste(roomBelow);
             level--;
-            dungeon.addRoom(new DungeonRoom(chunk, level, roomConfiguration, fileName));
         }
 
         if (DirectionUtil.doesRoomGoUpInDirection(direction, roomConfiguration)){
+            DungeonRoom roomAbove = new DungeonRoom(chunk, level+1, roomConfiguration, fileName);
+            if (isAlreadyRoom(dungeon, chunk, level+1)) return;
+            dungeon.addRoom(roomAbove);
             level++;
-            dungeon.addRoom(new DungeonRoom(chunk, level, roomConfiguration, fileName));
         }
+
+        dungeon.addRoom(room);
+        dungeon.addRoomToPaste(room);
+        FileManager.log(room.toString());
 
         if (DirectionUtil.isRoomOpenInDirection(Direction.NORTH, roomConfiguration)) {
             count = continueIn(dungeon, Direction.NORTH, RoomConfiguration._S__, chunk, pathLength, count, level, tilesetFolder);
@@ -66,6 +74,7 @@ public class DungeonUtil {
             if (isAlreadyRoom(dungeon, newChunk, level)) return count;
             DungeonRoom room = new DungeonRoom(newChunk, level, roomConfiguration, fileName);
             dungeon.addRoom(room);
+            dungeon.addRoomToPaste(room);
             FileManager.log(room + " | ENDCAP");
             return count;
         }
@@ -153,10 +162,11 @@ public class DungeonUtil {
             x-=1;
         }
         if (direction == Direction.EAST) {
-            x+=3;
+            //x+=3;
+            z-=1;
         }
         if (direction == Direction.WEST) {
-            x+=3;
+            x-=2;
             z-=1;
         }
         return new DungeonChunk(world, x, z);

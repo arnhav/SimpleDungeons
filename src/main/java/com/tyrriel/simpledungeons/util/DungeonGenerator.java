@@ -51,6 +51,7 @@ public class DungeonGenerator {
         String roomName = DungeonUtil.getRoomName(RoomConfiguration.START);
         DungeonRoom start = new DungeonRoom(new DungeonChunk(worldName, 0, 0), 0, RoomConfiguration.START, roomName);
         dungeon.addRoom(start);
+        dungeon.addRoomToPaste(start);
 
         // North
         DungeonUtil.goInDirection(dungeon, Direction.NORTH, worldName, 0, 0, dungeonConfiguration.getPathLength(), 0, 0, tilesetFolder);
@@ -72,13 +73,15 @@ public class DungeonGenerator {
         Direction direction = DirectionUtil.getFacing(roomConfiguration);
         System.out.println(direction.toString());
         DungeonChunk pasteChunk = DungeonUtil.getBossPasteChunk(chunk, direction);
+        System.out.println(pasteChunk);
+        System.out.println(dungeonRoom);
 
         DungeonUtil.addBossRooms(dungeon, dungeonRoom);
 
         dungeon.setBossPasteRoom(
                 new DungeonRoom(pasteChunk, level,
                         RoomConfiguration.valueOf("BOSS_" + direction.toString()),
-                        DungeonUtil.getRoomName(RoomConfiguration.valueOf("BOSS_" + direction.toString()
+                        DungeonUtil.getRoomName(RoomConfiguration.valueOf("BOSS_" + DirectionUtil.getInverse(direction).toString()
                         ))));
 
         DungeonManager.dungeons.put(worldName, dungeon);
