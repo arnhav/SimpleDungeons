@@ -61,8 +61,11 @@ public class DungeonUtil {
             return count;
         } else {
             String fileName = getRoomName(roomConfiguration);
+            System.out.println("Hit path length");
             DungeonChunk newChunk = getNextChunkInDirection(chunk, direction);
+            System.out.println("Made new chunk");
             if (isAlreadyRoom(dungeon, newChunk, level)) return count;
+            System.out.println("Chunk does not exists, Made new");
             DungeonRoom room = new DungeonRoom(chunk, level, roomConfiguration, fileName);
             dungeon.addRoom(room);
             System.out.println(room + " | " + roomConfiguration.toString() + " | " + fileName + " | ENDCAP");
