@@ -1,0 +1,30 @@
+package com.tyrriel.simpledungeons.util;
+
+import com.tyrriel.simpledungeons.objects.Dungeon;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+
+public class DungeonManager {
+
+    public static HashMap<String, Dungeon> dungeons = new HashMap<>();
+
+    public static HashMap<Player, String> playersInDungeon = new HashMap<>();
+
+    public static HashMap<Player, Location> playerLocations = new HashMap<>();
+
+    public static boolean isDungeonWorld(World world){
+        return getDungeon(world) != null;
+    }
+
+    public static Dungeon getDungeon(World world){
+        for (Dungeon dungeon : dungeons.values()){
+            if (dungeon.getWorld().equals(world))
+                return dungeon;
+        }
+        return null;
+    }
+
+}

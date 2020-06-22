@@ -1,0 +1,12 @@
+name: SimpleDungeons
+version: ${project.version}
+main: com.tyrriel.simpledungeons.SimpleDungeons
+api-version: 1.15
+authors: [Tyrriel]
+depend: [WorldEdit]
+description: A simple dungeon system
+commands:
+  simpledungeon:
+    usage: /<command>
+    description: Creates new dungeon world
+    aliases: sd
