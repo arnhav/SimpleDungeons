@@ -65,10 +65,12 @@ public class DungeonGenerator {
 
         ArrayList<DungeonRoom> endcaps = DungeonUtil.getEndCaps(dungeon);
         DungeonRoom dungeonRoom = endcaps.get((int) (Math.random() * ((endcaps.size() - 1) + 1)));
+        dungeon.removeRoom(dungeonRoom);
         DungeonChunk chunk = dungeonRoom.getChunk();
-        RoomConfiguration roomConfiguration = dungeonRoom.getRoomConfiguration();
         int level = dungeonRoom.getLevel();
+        RoomConfiguration roomConfiguration = dungeonRoom.getRoomConfiguration();
         Direction direction = DirectionUtil.getFacing(roomConfiguration);
+        System.out.println(direction.toString());
         DungeonChunk pasteChunk = DungeonUtil.getBossPasteChunk(chunk, direction);
 
         DungeonUtil.addBossRooms(dungeon, dungeonRoom);

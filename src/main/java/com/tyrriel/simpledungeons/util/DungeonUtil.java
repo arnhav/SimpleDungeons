@@ -125,11 +125,10 @@ public class DungeonUtil {
     }
 
     public static void addBossRooms(Dungeon dungeon, DungeonRoom dungeonRoom){
-        dungeon.getRooms().remove(dungeonRoom);
         DungeonChunk chunk = dungeonRoom.getChunk();
         int level = dungeonRoom.getLevel();
         Direction direction = DirectionUtil.getFacing(dungeonRoom.getRoomConfiguration());
-        DungeonChunk centerChunk = centerChunk(chunk, direction);
+        DungeonChunk centerChunk = getNextChunkInDirection(chunk, direction);
 
         for (int l = level; l < level+2; l++){
             for (int x = centerChunk.getX() - 1; x < centerChunk.getX() + 1; x++){
@@ -140,21 +139,6 @@ public class DungeonUtil {
                 }
             }
         }
-    }
-
-    public static DungeonChunk centerChunk(DungeonChunk oldChunk, Direction direction){
-        String world = oldChunk.getWorld();
-        int x = oldChunk.getX();
-        int z = oldChunk.getZ();
-        if (direction == Direction.NORTH)
-            z+=1;
-        if (direction == Direction.SOUTH)
-            z-=1;
-        if (direction == Direction.EAST)
-            x-=1;
-        if (direction == Direction.WEST)
-            x+=1;
-        return new DungeonChunk(world, x, z);
     }
 
     public static DungeonChunk getBossPasteChunk(DungeonChunk oldChunk, Direction direction){
@@ -195,7 +179,8 @@ public class DungeonUtil {
     public static boolean isValidBossEndCap(Dungeon dungeon, DungeonRoom dungeonRoom){
         DungeonChunk chunk = dungeonRoom.getChunk();
         int level = dungeonRoom.getLevel();
-        DungeonChunk centerChunk = centerChunk(chunk, DirectionUtil.getFacing(dungeonRoom.getRoomConfiguration()));
+        Direction direction = DirectionUtil.getFacing(dungeonRoom.getRoomConfiguration());
+        DungeonChunk centerChunk = getNextChunkInDirection(chunk, direction);
         if (isAlreadyRoom(dungeon, centerChunk, level)) return false;
         for (int l = level; l <= level + 1; l++){
             for (int x = centerChunk.getX() - 1; x <= centerChunk.getX() + 1; x++){

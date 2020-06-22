@@ -105,4 +105,9 @@ public class Dungeon {
         rooms.add(dungeonRoom);
         roomsToPaste.add(dungeonRoom);
     }
+
+    public void removeRoom(DungeonRoom dungeonRoom){
+        rooms.remove(dungeonRoom);
+        roomsToPaste.remove(dungeonRoom);
+    }
 }

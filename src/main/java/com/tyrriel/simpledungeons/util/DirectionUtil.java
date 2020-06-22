@@ -68,13 +68,13 @@ public class DirectionUtil {
 
     public static Direction getFacing(RoomConfiguration roomConfiguration){
         if (roomConfiguration.toString().contains("N"))
-            return Direction.NORTH;
-        if (roomConfiguration.toString().contains("S"))
             return Direction.SOUTH;
+        if (roomConfiguration.toString().contains("S"))
+            return Direction.NORTH;
         if (roomConfiguration.toString().contains("E"))
-            return Direction.EAST;
-        if (roomConfiguration.toString().contains("W"))
             return Direction.WEST;
+        if (roomConfiguration.toString().contains("W"))
+            return Direction.EAST;
         return Direction.NORTH;
     }
 }
