@@ -1,8 +1,10 @@
 package com.tyrriel.simpledungeons.objects;
 
+import org.bukkit.Location;
 import org.bukkit.block.Chest;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Dungeon {
@@ -13,7 +15,8 @@ public class Dungeon {
     private DungeonConfiguration dungeonConfiguration;
     private ArrayList<DungeonRoom> rooms;
     private LinkedBlockingQueue<DungeonRoom> roomsToPaste;
-    private ArrayList<Chest> openedChest;
+    private HashSet<Chest> openedChest;
+    private Location start;
     private boolean bossDefeated = false;
 
     private DungeonRoom bossPasteRoom;
@@ -26,7 +29,7 @@ public class Dungeon {
         setRoomsToPaste(roomsToPaste);
         setDungeonConfiguration(dungeonConfiguration);
 
-        openedChest = new ArrayList<>();
+        openedChest = new HashSet<>();
     }
 
     public void setName(String name) {
@@ -65,6 +68,10 @@ public class Dungeon {
         this.bossPasteRoom = bossPasteRoom;
     }
 
+    public void setStart(Location start) {
+        this.start = start;
+    }
+
     public String getName() {
         return name;
     }
@@ -89,12 +96,16 @@ public class Dungeon {
         return dungeonConfiguration;
     }
 
-    public ArrayList<Chest> getOpenedChest() {
+    public HashSet<Chest> getOpenedChest() {
         return openedChest;
     }
 
     public boolean isBossDefeated() {
         return bossDefeated;
+    }
+
+    public Location getStart() {
+        return start;
     }
 
     public DungeonRoom getBossPasteRoom() {

@@ -3,7 +3,7 @@ version: ${project.version}
 main: com.tyrriel.simpledungeons.SimpleDungeons
 api-version: 1.15
 authors: [Tyrriel]
-depend: [WorldEdit]
+depend: [WorldEdit, MythicMobs]
 description: A simple dungeon system
 commands:
   simpledungeon:

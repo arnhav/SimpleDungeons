@@ -69,6 +69,17 @@
             <id>enginehub-maven</id>
             <url>http://maven.enginehub.org/repo/</url>
         </repository>
+        <!--MythicMobs Repo-->
+        <repository>
+            <id>zz_lumine-repo</id>
+            <url>http://mvn.lumine.io/repository/maven-releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -84,6 +95,13 @@
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
             <version>7.0.0-SNAPSHOT</version>
+        </dependency>
+        <!--MythicMobs API-->
+        <dependency>
+            <groupId>io.lumine.xikage</groupId>
+            <artifactId>MythicMobs</artifactId>
+            <version>4.9.1</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

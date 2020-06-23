@@ -7,10 +7,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
 import org.bukkit.block.EndGateway;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -21,7 +19,6 @@ public class DungeonListener implements Listener {
 
     @EventHandler
     public void onChestOpen(PlayerInteractEvent event){
-
         Block block = event.getClickedBlock();
 
         if (block == null) return;
@@ -32,23 +29,14 @@ public class DungeonListener implements Listener {
 
         Dungeon dungeon = DungeonManager.getDungeon(block.getWorld());
 
-        DoubleChest doubleChest = (DoubleChest) ((Chest) block.getState()).getInventory().getHolder();
-        Chest left = (Chest) doubleChest.getLeftSide();
-        Chest right = (Chest) doubleChest.getRightSide();
+        if (dungeon == null) return;
 
-        if (block.getType() == Material.CHEST){
-            if (!dungeon.isBossDefeated()){
-                event.setUseInteractedBlock(Event.Result.DENY);
-            }
-        }
+        Chest chest = (Chest) block.getState();
 
-        if (!dungeon.getOpenedChest().contains(left) || !dungeon.getOpenedChest().contains(right)) {
-            left.setLootTable(LootTables.END_CITY_TREASURE.getLootTable());
-            right.setLootTable(LootTables.END_CITY_TREASURE.getLootTable());
-            dungeon.setChestToOpened(left);
-            dungeon.setChestToOpened(right);
-            left.update();
-            right.update();
+        if (!dungeon.getOpenedChest().contains(chest)) {
+            chest.setLootTable(LootTables.END_CITY_TREASURE.getLootTable());
+            dungeon.setChestToOpened(chest);
+            chest.update();
         }
     }
 

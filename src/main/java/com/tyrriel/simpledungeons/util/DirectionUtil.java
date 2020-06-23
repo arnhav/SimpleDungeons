@@ -1,6 +1,7 @@
 package com.tyrriel.simpledungeons.util;
 
 import com.sk89q.worldedit.util.Direction;
+import com.tyrriel.simpledungeons.objects.DungeonRoom;
 import com.tyrriel.simpledungeons.objects.enums.RoomConfiguration;
 
 public class DirectionUtil {
@@ -48,13 +49,17 @@ public class DirectionUtil {
         return false;
     }
 
-    public static boolean canRoomConfigConnectToDirection(Direction direction, RoomConfiguration roomConfiguration, int level){
+    public static boolean canRoomConfigConnectToDirection(Direction direction, RoomConfiguration roomConfiguration, int level, DungeonRoom prevDR){
         if (roomConfiguration.toString().contains("BOSS") || roomConfiguration.toString().contains("START"))
             return false;
-        if (doesRoomGoDown(roomConfiguration))
+        if (doesRoomGoDown(roomConfiguration)) {
+            if (doesRoomGoUpInDirection(direction, prevDR.getRoomConfiguration())) return false;
             return doesRoomGoDownInDirection(direction, roomConfiguration) && level > 0;
-        if (doesRoomGoUp(roomConfiguration))
+        }
+        if (doesRoomGoUp(roomConfiguration)) {
+            if (doesRoomGoDownInDirection(direction, prevDR.getRoomConfiguration())) return false;
             return doesRoomGoUpInDirection(direction, roomConfiguration);
+        }
         if (direction == Direction.NORTH && roomConfiguration.toString().contains("S"))
             return true;
         if (direction == Direction.SOUTH && roomConfiguration.toString().contains("N"))

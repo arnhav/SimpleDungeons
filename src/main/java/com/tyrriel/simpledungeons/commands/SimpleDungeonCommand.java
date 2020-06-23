@@ -6,6 +6,7 @@ import com.tyrriel.simpledungeons.objects.Dungeon;
 import com.tyrriel.simpledungeons.util.DungeonGenerator;
 import com.tyrriel.simpledungeons.util.DungeonManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -23,7 +24,7 @@ public class SimpleDungeonCommand implements CommandExecutor {
             return false;
         }
 
-        if (!sender.isOp()) return false;
+        if (!sender.isOp()) return true;
 
         if (args.length == 0){
             sender.sendMessage("SimpleDungeon Help");
@@ -34,22 +35,22 @@ public class SimpleDungeonCommand implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("leave")){
-            if (!(sender instanceof Player)) return false;
-            if (!DungeonManager.playersInDungeon.containsKey(sender)) return false;
+            if (!(sender instanceof Player)) return true;
+            if (!DungeonManager.playersInDungeon.containsKey(sender)) return true;
             Location location = DungeonManager.playerLocations.get(sender);
             ((Player) sender).teleport(location);
             DungeonManager.playersInDungeon.remove(sender);
             DungeonManager.playerLocations.remove(sender);
         }
 
-        if (args.length < 2) return false;
+        if (args.length < 2) return true;
 
         if (args[0].equalsIgnoreCase("create")){
-            if (args.length != 3) return false;
+            if (args.length != 3) return true;
             String tileSet = args[1];
             String worldName = args[2];
-            if (!isTileSetPresent(tileSet)) return false;
-            if (DungeonManager.dungeons.containsKey(worldName)) return false;
+            if (!isTileSetPresent(tileSet)) return true;
+            if (DungeonManager.dungeons.containsKey(worldName)) return true;
             DungeonGenerator.createWorld(worldName);
             Bukkit.getScheduler().runTaskAsynchronously(SimpleDungeons.simpleDungeons, ()->{
                 DungeonGenerator.createDungeon(tileSet, worldName);
@@ -58,12 +59,11 @@ public class SimpleDungeonCommand implements CommandExecutor {
                 Dungeon dungeon = DungeonManager.dungeons.get(worldName);
                 if (dungeon == null) return;
                 DungeonGenerator.placeRooms(dungeon);
-                sender.sendMessage("Dungeon created!");
             }, 5*20);
         }
 
         if (args[0].equalsIgnoreCase("delete")){
-            if (!DungeonManager.dungeons.containsKey(args[1])) return false;
+            if (!DungeonManager.dungeons.containsKey(args[1])) return true;
             World world = Bukkit.getWorld(DungeonManager.dungeons.get(args[1]).getWorld());
             File worldFile = new File(Bukkit.getWorldContainer(), args[1]);
             Bukkit.unloadWorld(world, false);
@@ -73,17 +73,26 @@ public class SimpleDungeonCommand implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("enter")){
-            if (!(sender instanceof Player)) return false;
+            if (!(sender instanceof Player)) return true;
             Player p = (Player) sender;
-            if (DungeonManager.playersInDungeon.containsKey(p)) return false;
+            if (DungeonManager.playersInDungeon.containsKey(p)) return true;
             Dungeon dungeon = DungeonManager.dungeons.get(args[1]);
+            if (dungeon == null) {
+                sender.sendMessage(ChatColor.RED + "Not a valid dungeon");
+                return true;
+            }
             World world = Bukkit.getWorld(dungeon.getWorld());
-            if (world == null) return false;
-            if (!dungeon.getRoomsToPaste().isEmpty()) return false;
+            if (world == null) return true;
+            if (!dungeon.getRoomsToPaste().isEmpty()) return true;
             DungeonManager.playersInDungeon.put(p, args[1]);
             DungeonManager.playerLocations.put(p, p.getLocation());
-            Location location = new Location(world, 7, 4, 6);
+            Location location = dungeon.getStart();
+            if (location == null){
+                sender.sendMessage(ChatColor.RED + "No start location set for dungeon.");
+                return true;
+            }
             p.teleport(location);
+            Bukkit.dispatchCommand(p, "paper fixlight");
         }
 
         return true;

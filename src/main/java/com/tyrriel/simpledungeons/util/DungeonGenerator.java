@@ -71,18 +71,15 @@ public class DungeonGenerator {
         int level = dungeonRoom.getLevel();
         RoomConfiguration roomConfiguration = dungeonRoom.getRoomConfiguration();
         Direction direction = DirectionUtil.getFacing(roomConfiguration);
-        System.out.println(direction.toString());
         DungeonChunk pasteChunk = DungeonUtil.getBossPasteChunk(chunk, direction);
-        System.out.println(pasteChunk);
-        System.out.println(dungeonRoom);
 
         DungeonUtil.addBossRooms(dungeon, dungeonRoom);
 
         dungeon.setBossPasteRoom(
                 new DungeonRoom(pasteChunk, level,
                         RoomConfiguration.valueOf("BOSS_" + direction.toString()),
-                        DungeonUtil.getRoomName(RoomConfiguration.valueOf("BOSS_" + DirectionUtil.getInverse(direction).toString()
-                        ))));
+                        DungeonUtil.getRoomName(RoomConfiguration.valueOf("BOSS_" + DirectionUtil.getInverse(direction).toString()))
+                ));
 
         DungeonManager.dungeons.put(worldName, dungeon);
 
@@ -102,7 +99,10 @@ public class DungeonGenerator {
         Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, new Runnable() {
             @Override
             public void run() {
-                if (roomsToPaste.isEmpty()) return;
+                if (roomsToPaste.isEmpty()) {
+                    Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, ()-> SignManager.findTileEntities(dungeon), 5*20);
+                    return;
+                }
 
                 int count = 0;
                 while (count < 10){
@@ -123,7 +123,8 @@ public class DungeonGenerator {
                     String fileName = room.getRoomName();
                     if (!world.isChunkLoaded(chunk.getX(), chunk.getZ())) {
                         world.getChunkAtAsync(chunk.getX(), chunk.getZ()).thenAccept(c ->
-                                DungeonUtil.pasteFile(tilesetFolder, fileName, world, c.getX() * 16, ((level * 16)), c.getZ() * 16));
+                                DungeonUtil.pasteFile(tilesetFolder, fileName, world, c.getX() * 16, ((level * 16)), c.getZ() * 16)
+                        );
                     } else {
                         DungeonUtil.pasteFile(tilesetFolder, fileName, world, chunk.getX() * 16, ((level * 16)), chunk.getZ() * 16);
                     }
@@ -135,16 +136,14 @@ public class DungeonGenerator {
             }
         }, 0);
 
-        DungeonRoom bossPasteRoom = dungeon.getBossPasteRoom();
-        DungeonChunk pasteChunk = bossPasteRoom.getChunk();
+        DungeonRoom bpr = dungeon.getBossPasteRoom();
+        DungeonChunk pc = bpr.getChunk();
 
-        if (world.isChunkLoaded(pasteChunk.getX(), pasteChunk.getZ())){
-            DungeonUtil.pasteFile(tilesetFolder, bossPasteRoom.getRoomName(),
-                    world, pasteChunk.getX()*16, ((bossPasteRoom.getLevel()*16)), pasteChunk.getZ()*16);
+        if (world.isChunkLoaded(pc.getX(), pc.getZ())){
+            DungeonUtil.pasteFile(tilesetFolder, bpr.getRoomName(), world, pc.getX()*16, ((bpr.getLevel()*16)), pc.getZ()*16);
         } else {
-            world.getChunkAtAsync(pasteChunk.getX(), pasteChunk.getZ()).thenAccept(c ->{
-                DungeonUtil.pasteFile(tilesetFolder, bossPasteRoom.getRoomName(),
-                        world, pasteChunk.getX()*16, ((bossPasteRoom.getLevel()*16)), pasteChunk.getZ()*16);
+            world.getChunkAtAsync(pc.getX(), pc.getZ()).thenAccept(c ->{
+                DungeonUtil.pasteFile(tilesetFolder, bpr.getRoomName(), world, pc.getX()*16, ((bpr.getLevel()*16)), pc.getZ()*16);
             });
         }
     }

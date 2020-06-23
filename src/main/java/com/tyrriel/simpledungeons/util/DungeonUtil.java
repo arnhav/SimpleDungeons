@@ -13,12 +13,14 @@ import java.util.List;
 public class DungeonUtil {
 
     public static void goInDirection(Dungeon dungeon, Direction direction, String world, int prevx, int prevz, int pathLength, int count, int level, File tilesetFolder){
+        DungeonChunk prevChunk = new DungeonChunk(world, prevx, prevz);
+        DungeonRoom prevDR = getDungeonRoom(dungeon, prevChunk, level);
         RoomConfiguration roomConfiguration = pickRoomConfig();
-        while (!DirectionUtil.canRoomConfigConnectToDirection(direction, roomConfiguration, level)){
+        while (!DirectionUtil.canRoomConfigConnectToDirection(direction, roomConfiguration, level, prevDR)){
             roomConfiguration = pickRoomConfig();
         }
 
-        DungeonChunk chunk = getNextChunkInDirection(new DungeonChunk(world, prevx, prevz), direction);
+        DungeonChunk chunk = getNextChunkInDirection(prevChunk, direction);
         addRoom(dungeon, chunk, roomConfiguration, direction, tilesetFolder, level, pathLength, count);
     }
 

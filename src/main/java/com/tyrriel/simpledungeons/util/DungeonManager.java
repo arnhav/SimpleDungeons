@@ -21,7 +21,7 @@ public class DungeonManager {
 
     public static Dungeon getDungeon(World world){
         for (Dungeon dungeon : dungeons.values()){
-            if (dungeon.getWorld().equals(world))
+            if (world.getName().equals(dungeon.getName()))
                 return dungeon;
         }
         return null;

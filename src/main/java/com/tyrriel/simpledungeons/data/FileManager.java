@@ -66,43 +66,40 @@ public class FileManager {
         HashMap<RoomConfiguration, List<String>> map = new HashMap<>();
         File file = new File(folder, "config.yml");
         FileConfiguration fileConfiguration = YamlConfiguration.loadConfiguration(file);
-        if (file.exists()){
-            ConfigurationSection configurationSection = fileConfiguration.getConfigurationSection("Rooms");
-            if (configurationSection != null) {
-                for (String path : configurationSection.getKeys(false)) {
-                    try {
-                        RoomConfiguration roomConfiguration = RoomConfiguration.valueOf(path);
-                        map.put(roomConfiguration, configurationSection.getStringList(path));
-                    } catch (IllegalArgumentException e){
-                        SimpleDungeons.simpleDungeons.getLogger().severe(path + " is not a recognized room configuration!");
-                        return null;
-                    }
-                }
-                dungeonConfiguration.setRoomNames(map);
-            } else {
-                for (RoomConfiguration roomConfiguration : RoomConfiguration.values()){
-                    fileConfiguration.set("Rooms." + roomConfiguration.toString(), Collections.singletonList("REPLACEME"));
-                }
+        if (!file.exists()) return null;
+        ConfigurationSection configurationSection = fileConfiguration.getConfigurationSection("Rooms");
+        if (configurationSection != null) {
+            for (String path : configurationSection.getKeys(false)) {
                 try {
-                    fileConfiguration.save(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    RoomConfiguration roomConfiguration = RoomConfiguration.valueOf(path);
+                    map.put(roomConfiguration, configurationSection.getStringList(path));
+                } catch (IllegalArgumentException e){
+                    SimpleDungeons.simpleDungeons.getLogger().severe(path + " is not a recognized room configuration!");
+                    return null;
                 }
             }
-            if (fileConfiguration.isSet("PathLength")) {
-                int pathLength = fileConfiguration.getInt("PathLength");
-                dungeonConfiguration.setPathLength(pathLength);
-            } else {
-                fileConfiguration.set("PathLength", 20);
-                try {
-                    fileConfiguration.save(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                dungeonConfiguration.setPathLength(20);
-            }
+            dungeonConfiguration.setRoomNames(map);
         } else {
-            return null;
+            for (RoomConfiguration roomConfiguration : RoomConfiguration.values()){
+                fileConfiguration.set("Rooms." + roomConfiguration.toString(), Collections.singletonList("REPLACEME"));
+            }
+            try {
+                fileConfiguration.save(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (fileConfiguration.isSet("PathLength")) {
+            int pathLength = fileConfiguration.getInt("PathLength");
+            dungeonConfiguration.setPathLength(pathLength);
+        } else {
+            fileConfiguration.set("PathLength", 20);
+            try {
+                fileConfiguration.save(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            dungeonConfiguration.setPathLength(20);
         }
         return dungeonConfiguration;
     }
