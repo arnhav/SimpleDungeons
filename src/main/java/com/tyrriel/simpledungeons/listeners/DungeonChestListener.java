@@ -1,21 +1,16 @@
 package com.tyrriel.simpledungeons.listeners;
 
-import com.destroystokyo.paper.event.player.PlayerTeleportEndGatewayEvent;
 import com.tyrriel.simpledungeons.objects.Dungeon;
 import com.tyrriel.simpledungeons.util.DungeonManager;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.block.EndGateway;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.loot.LootTables;
 
-
-public class DungeonListener implements Listener {
+public class DungeonChestListener implements Listener {
 
     @EventHandler
     public void onChestOpen(PlayerInteractEvent event){
@@ -38,25 +33,6 @@ public class DungeonListener implements Listener {
             dungeon.setChestToOpened(chest);
             chest.update();
         }
-    }
-
-    @EventHandler
-    public void onTeleport(PlayerTeleportEndGatewayEvent event){
-        Player player = event.getPlayer();
-        EndGateway endGateway = event.getGateway();
-
-        if (!DungeonManager.isDungeonWorld(endGateway.getWorld())) return;
-
-        if (!DungeonManager.playersInDungeon.containsKey(event.getPlayer())) return;
-
-        event.setCancelled(true);
-
-        Location location = DungeonManager.playerLocations.get(player);
-
-        player.teleport(location);
-
-        DungeonManager.playersInDungeon.remove(player);
-        DungeonManager.playerLocations.remove(player);
     }
 
 }

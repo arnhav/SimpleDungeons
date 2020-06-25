@@ -1,7 +1,7 @@
 package com.tyrriel.simpledungeons.util;
 
 import com.tyrriel.simpledungeons.objects.Dungeon;
-import org.bukkit.Location;
+import com.tyrriel.simpledungeons.objects.DungeonPlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -11,9 +11,7 @@ public class DungeonManager {
 
     public static HashMap<String, Dungeon> dungeons = new HashMap<>();
 
-    public static HashMap<Player, String> playersInDungeon = new HashMap<>();
-
-    public static HashMap<Player, Location> playerLocations = new HashMap<>();
+    public static HashMap<Player, DungeonPlayer> dungeonPlayers = new HashMap<>();
 
     public static boolean isDungeonWorld(World world){
         return getDungeon(world) != null;

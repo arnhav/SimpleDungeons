@@ -196,7 +196,7 @@ public class DungeonUtil {
         Direction direction = DirectionUtil.getFacing(dungeonRoom.getRoomConfiguration());
         DungeonChunk centerChunk = getNextChunkInDirection(chunk, direction);
         if (isAlreadyRoom(dungeon, centerChunk, level)) return false;
-        for (int l = level; l <= level + 1; l++){
+        for (int l = level; l <= level+2; l++){
             for (int x = centerChunk.getX() - 1; x <= centerChunk.getX() + 1; x++){
                 for (int z = centerChunk.getZ() - 1; z <= centerChunk.getZ() + 1; z++){
                     DungeonChunk testChunk = new DungeonChunk(chunk.getWorld(), x, z);

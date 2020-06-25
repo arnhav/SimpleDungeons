@@ -100,7 +100,9 @@ public class DungeonGenerator {
             @Override
             public void run() {
                 if (roomsToPaste.isEmpty()) {
-                    Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, ()-> SignManager.findTileEntities(dungeon), 5*20);
+                    System.out.println("Done pasting rooms...");
+                    //Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, ()-> SignManager.findTileEntities(dungeon), 5*20);
+                    SignManager.findTileEntities(dungeon);
                     return;
                 }
 
@@ -121,6 +123,7 @@ public class DungeonGenerator {
                     }
 
                     String fileName = room.getRoomName();
+                    world.isChunkGenerated(chunk.getX(), chunk.getZ());
                     if (!world.isChunkLoaded(chunk.getX(), chunk.getZ())) {
                         world.getChunkAtAsync(chunk.getX(), chunk.getZ()).thenAccept(c ->
                                 DungeonUtil.pasteFile(tilesetFolder, fileName, world, c.getX() * 16, ((level * 16)), c.getZ() * 16)

@@ -4,7 +4,9 @@ import org.bukkit.Location;
 import org.bukkit.block.Chest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Dungeon {
@@ -17,7 +19,9 @@ public class Dungeon {
     private LinkedBlockingQueue<DungeonRoom> roomsToPaste;
     private HashSet<Chest> openedChest;
     private Location start;
-    private boolean bossDefeated = false;
+    private HashMap<DungeonTrigger, List<Object>> triggeredObjects;
+    private HashMap<String, DungeonDoor> dungeonDoors;
+    private DungeonBoss dungeonBoss;
 
     private DungeonRoom bossPasteRoom;
 
@@ -30,6 +34,8 @@ public class Dungeon {
         setDungeonConfiguration(dungeonConfiguration);
 
         openedChest = new HashSet<>();
+        triggeredObjects = new HashMap<>();
+        dungeonDoors = new HashMap<>();
     }
 
     public void setName(String name) {
@@ -56,12 +62,8 @@ public class Dungeon {
         this.dungeonConfiguration = dungeonConfiguration;
     }
 
-    public void setChestToOpened(Chest chest){
+    public void setChestToOpened(Chest chest) {
         openedChest.add(chest);
-    }
-
-    public void setBossDefeated(boolean bossDefeated) {
-        this.bossDefeated = bossDefeated;
     }
 
     public void setBossPasteRoom(DungeonRoom bossPasteRoom) {
@@ -70,6 +72,10 @@ public class Dungeon {
 
     public void setStart(Location start) {
         this.start = start;
+    }
+
+    public void setDungeonBoss(DungeonBoss dungeonBoss) {
+        this.dungeonBoss = dungeonBoss;
     }
 
     public String getName() {
@@ -100,12 +106,12 @@ public class Dungeon {
         return openedChest;
     }
 
-    public boolean isBossDefeated() {
-        return bossDefeated;
-    }
-
     public Location getStart() {
         return start;
+    }
+
+    public DungeonBoss getDungeonBoss() {
+        return dungeonBoss;
     }
 
     public DungeonRoom getBossPasteRoom() {
@@ -123,5 +129,62 @@ public class Dungeon {
     public void removeRoom(DungeonRoom dungeonRoom){
         rooms.remove(dungeonRoom);
         roomsToPaste.remove(dungeonRoom);
+    }
+
+    public void addTrigger(DungeonTrigger dungeonTrigger, Object object){
+        List<Object> objects = triggeredObjects.getOrDefault(dungeonTrigger, new ArrayList<>());
+        objects.add(object);
+        triggeredObjects.put(dungeonTrigger, objects);
+    }
+
+    public void trigger(DungeonTrigger dungeonTrigger){
+        List<Object> objects = triggeredObjects.get(dungeonTrigger);
+        if (objects ==  null) return;
+        for (Object object : objects){
+            if (object.getClass() == DungeonMob.class){
+                ((DungeonMob) object).spawn();
+            }
+            if (object.getClass() == DungeonBlock.class){
+                ((DungeonBlock) object).trigger();
+            }
+        }
+    }
+
+    public void addDungeonDoor(DungeonDoor dd, Location point){
+        String name = dd.getName();
+        DungeonDoor door = dungeonDoors.get(name);
+        if (door == null){
+            door = dd;
+            door.setPoint1(point);
+        } else {
+            if (door.getPoint2() == null) {
+                door.setPoint2(point);
+                door.fillDoor();
+            }
+        }
+        dungeonDoors.put(name, door);
+    }
+
+    public DungeonDoor getDungeonDoor(Location location){
+        for (DungeonDoor door : dungeonDoors.values()){
+            Location point1 = door.getPoint1();
+            Location point2 = door.getPoint2();
+            if (point1 == null) continue;
+            if (point2 == null) continue;
+            int minX = Math.min(point1.getBlockX(), point2.getBlockX());
+            int maxX = Math.max(point1.getBlockX(), point2.getBlockX());
+            int minZ = Math.min(point1.getBlockZ(), point2.getBlockZ());
+            int maxZ = Math.max(point1.getBlockZ(), point2.getBlockZ());
+            int minY = Math.min(point1.getBlockY(), point2.getBlockY());
+            int maxY = Math.max(point1.getBlockY(), point2.getBlockY());
+            int X = location.getBlockX();
+            int Y = location.getBlockY();
+            int Z = location.getBlockZ();
+            if ((minX <= X && X <= maxX) &&
+                    (minY <= Y && Y <= maxY) &&
+                    (minZ <= Z && Z <= maxZ))
+                return door;
+        }
+        return null;
     }
 }

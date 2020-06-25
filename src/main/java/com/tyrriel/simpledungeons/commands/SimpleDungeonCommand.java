@@ -3,6 +3,7 @@ package com.tyrriel.simpledungeons.commands;
 import com.tyrriel.simpledungeons.SimpleDungeons;
 import com.tyrriel.simpledungeons.data.FileManager;
 import com.tyrriel.simpledungeons.objects.Dungeon;
+import com.tyrriel.simpledungeons.objects.DungeonPlayer;
 import com.tyrriel.simpledungeons.util.DungeonGenerator;
 import com.tyrriel.simpledungeons.util.DungeonManager;
 import org.bukkit.Bukkit;
@@ -36,11 +37,12 @@ public class SimpleDungeonCommand implements CommandExecutor {
 
         if (args[0].equalsIgnoreCase("leave")){
             if (!(sender instanceof Player)) return true;
-            if (!DungeonManager.playersInDungeon.containsKey(sender)) return true;
-            Location location = DungeonManager.playerLocations.get(sender);
-            ((Player) sender).teleport(location);
-            DungeonManager.playersInDungeon.remove(sender);
-            DungeonManager.playerLocations.remove(sender);
+            Player p = (Player) sender;
+            DungeonPlayer dp = DungeonManager.dungeonPlayers.get(p);
+            if (dp == null) return true;
+            Location location = dp.getLocation();
+            p.teleport(location);
+            DungeonManager.dungeonPlayers.remove(p);
         }
 
         if (args.length < 2) return true;
@@ -59,7 +61,7 @@ public class SimpleDungeonCommand implements CommandExecutor {
                 Dungeon dungeon = DungeonManager.dungeons.get(worldName);
                 if (dungeon == null) return;
                 DungeonGenerator.placeRooms(dungeon);
-            }, 5*20);
+            }, 2*20);
         }
 
         if (args[0].equalsIgnoreCase("delete")){
@@ -75,7 +77,7 @@ public class SimpleDungeonCommand implements CommandExecutor {
         if (args[0].equalsIgnoreCase("enter")){
             if (!(sender instanceof Player)) return true;
             Player p = (Player) sender;
-            if (DungeonManager.playersInDungeon.containsKey(p)) return true;
+            if (DungeonManager.dungeonPlayers.containsKey(p)) return true;
             Dungeon dungeon = DungeonManager.dungeons.get(args[1]);
             if (dungeon == null) {
                 sender.sendMessage(ChatColor.RED + "Not a valid dungeon");
@@ -84,15 +86,14 @@ public class SimpleDungeonCommand implements CommandExecutor {
             World world = Bukkit.getWorld(dungeon.getWorld());
             if (world == null) return true;
             if (!dungeon.getRoomsToPaste().isEmpty()) return true;
-            DungeonManager.playersInDungeon.put(p, args[1]);
-            DungeonManager.playerLocations.put(p, p.getLocation());
+            DungeonPlayer dp = new DungeonPlayer(p, p.getLocation(), args[1]);
+            DungeonManager.dungeonPlayers.put(p, dp);
             Location location = dungeon.getStart();
             if (location == null){
                 sender.sendMessage(ChatColor.RED + "No start location set for dungeon.");
                 return true;
             }
             p.teleport(location);
-            Bukkit.dispatchCommand(p, "paper fixlight");
         }
 
         return true;
