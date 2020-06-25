@@ -5,6 +5,7 @@ import com.tyrriel.simpledungeons.objects.enums.TriggerType;
 import com.tyrriel.simpledungeons.util.DungeonManager;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,7 +23,7 @@ public class DungeonTriggerListener implements Listener {
         ActiveMob am = event.getMob();
         DungeonBoss db = dungeon.getDungeonBoss();
         DungeonTrigger dt;
-        if (db.getType().equalsIgnoreCase(am.getMobType())){
+        if (db != null && am.getMobType().equalsIgnoreCase(db.getType())){
             dt = new DungeonTrigger(TriggerType.BOSS);
         } else {
             dt = new DungeonTrigger(TriggerType.MOB, am.getMobType());
@@ -42,6 +43,7 @@ public class DungeonTriggerListener implements Listener {
         DungeonDoor dd = dungeon.getDungeonDoor(block.getLocation());
         if (dd == null) return;
         if (dd.isOpen()) return;
+        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 3f, 1.5f);
         dd.openDoor();
         DungeonTrigger dt = new DungeonTrigger(TriggerType.DOOR, dd.getName());
         dungeon.trigger(dt);

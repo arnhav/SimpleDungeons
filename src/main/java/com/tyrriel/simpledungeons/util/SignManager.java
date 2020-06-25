@@ -63,7 +63,7 @@ public class SignManager {
             if (type.equalsIgnoreCase("DOOR")){
                 String name = sign.getLine(2);
                 if (name.equalsIgnoreCase("")) continue;
-                DungeonDoor dd = new DungeonDoor(name);
+                DungeonDoor dd = new DungeonDoor(name, block.getWorld());
                 Material mat = Material.getMaterial(sign.getLine(3));
                 if (mat == null) continue;
                 dd.setDoorMaterial(mat);

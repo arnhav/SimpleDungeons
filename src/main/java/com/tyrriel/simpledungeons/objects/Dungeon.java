@@ -144,6 +144,9 @@ public class Dungeon {
             if (object.getClass() == DungeonMob.class){
                 ((DungeonMob) object).spawn();
             }
+            if (object.getClass() == DungeonBoss.class){
+                ((DungeonBoss) object).spawn();
+            }
             if (object.getClass() == DungeonBlock.class){
                 ((DungeonBlock) object).trigger();
             }
