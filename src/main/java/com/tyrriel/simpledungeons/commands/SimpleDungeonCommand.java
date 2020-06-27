@@ -13,7 +13,6 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -56,7 +55,7 @@ public class SimpleDungeonCommand implements CommandExecutor {
             if (DungeonManager.dungeons.containsKey(worldName)) return true;
             DungeonGenerator.createWorld(worldName);
             Bukkit.getScheduler().runTaskAsynchronously(SimpleDungeons.simpleDungeons, ()->{
-                DungeonGenerator.createDungeon(tileSet, worldName);
+                DungeonGenerator.generateDungeon(tileSet, worldName);
             });
             Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, ()->{
                 Dungeon dungeon = DungeonManager.dungeons.get(worldName);

@@ -12,6 +12,7 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import com.tyrriel.simpledungeons.SimpleDungeons;
 import org.bukkit.World;
 
 import java.io.File;
@@ -43,4 +44,12 @@ public class WEUtils {
         }
     }
 
+    public static void pasteFile(File folder, String fileName, World world, int x, int y, int z){
+        File file = new File(folder, fileName + ".schem");
+        if (file.exists()){
+            loadAndPasteSchem(file, world, x, y, z);
+        } else {
+            SimpleDungeons.simpleDungeons.getLogger().warning("File: '" + fileName + "' not found!");
+        }
+    }
 }

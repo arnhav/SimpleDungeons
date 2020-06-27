@@ -15,24 +15,24 @@ public class Dungeon {
     private String tileset;
     private String world;
     private DungeonConfiguration dungeonConfiguration;
+    private Location start;
+    private DungeonBoss dungeonBoss;
+
     private ArrayList<DungeonRoom> rooms;
     private LinkedBlockingQueue<DungeonRoom> roomsToPaste;
     private HashSet<Chest> openedChest;
-    private Location start;
-    private HashMap<DungeonTrigger, List<Object>> triggeredObjects;
+
     private HashMap<String, DungeonDoor> dungeonDoors;
-    private DungeonBoss dungeonBoss;
+    private HashMap<DungeonTrigger, List<Object>> triggeredObjects;
 
-    private DungeonRoom bossPasteRoom;
-
-    public Dungeon(String name, String tileset, String world, ArrayList<DungeonRoom> rooms, LinkedBlockingQueue<DungeonRoom> roomsToPaste, DungeonConfiguration dungeonConfiguration){
+    public Dungeon(String name, String tileset, String world, DungeonConfiguration dungeonConfiguration){
         setName(name);
         setTileset(tileset);
         setWorld(world);
-        setRooms(rooms);
-        setRoomsToPaste(roomsToPaste);
         setDungeonConfiguration(dungeonConfiguration);
 
+        rooms = new ArrayList<>();
+        roomsToPaste = new LinkedBlockingQueue<>();
         openedChest = new HashSet<>();
         triggeredObjects = new HashMap<>();
         dungeonDoors = new HashMap<>();
@@ -64,10 +64,6 @@ public class Dungeon {
 
     public void setChestToOpened(Chest chest) {
         openedChest.add(chest);
-    }
-
-    public void setBossPasteRoom(DungeonRoom bossPasteRoom) {
-        this.bossPasteRoom = bossPasteRoom;
     }
 
     public void setStart(Location start) {
@@ -114,15 +110,8 @@ public class Dungeon {
         return dungeonBoss;
     }
 
-    public DungeonRoom getBossPasteRoom() {
-        return bossPasteRoom;
-    }
-
     public void addRoom(DungeonRoom dungeonRoom){
         rooms.add(dungeonRoom);
-    }
-
-    public void addRoomToPaste(DungeonRoom dungeonRoom){
         roomsToPaste.add(dungeonRoom);
     }
 
@@ -135,22 +124,6 @@ public class Dungeon {
         List<Object> objects = triggeredObjects.getOrDefault(dungeonTrigger, new ArrayList<>());
         objects.add(object);
         triggeredObjects.put(dungeonTrigger, objects);
-    }
-
-    public void trigger(DungeonTrigger dungeonTrigger){
-        List<Object> objects = triggeredObjects.get(dungeonTrigger);
-        if (objects ==  null) return;
-        for (Object object : objects){
-            if (object.getClass() == DungeonMob.class){
-                ((DungeonMob) object).spawn();
-            }
-            if (object.getClass() == DungeonBoss.class){
-                ((DungeonBoss) object).spawn();
-            }
-            if (object.getClass() == DungeonBlock.class){
-                ((DungeonBlock) object).trigger();
-            }
-        }
     }
 
     public void addDungeonDoor(DungeonDoor dd, Location point){
@@ -189,5 +162,21 @@ public class Dungeon {
                 return door;
         }
         return null;
+    }
+
+    public void trigger(DungeonTrigger dungeonTrigger){
+        List<Object> objects = triggeredObjects.get(dungeonTrigger);
+        if (objects ==  null) return;
+        for (Object object : objects){
+            if (object.getClass() == DungeonMob.class){
+                ((DungeonMob) object).spawn();
+            }
+            if (object.getClass() == DungeonBoss.class){
+                ((DungeonBoss) object).spawn();
+            }
+            if (object.getClass() == DungeonBlock.class){
+                ((DungeonBlock) object).trigger();
+            }
+        }
     }
 }

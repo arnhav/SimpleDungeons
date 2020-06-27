@@ -1,60 +1,48 @@
 package com.tyrriel.simpledungeons.objects;
 
-import com.tyrriel.simpledungeons.objects.enums.RoomConfiguration;
+import java.util.List;
 
 public class DungeonRoom {
 
-    private DungeonChunk chunk;
-    private int level;
     private RoomConfiguration roomConfiguration;
-    private String roomName;
+    private List<DungeonChunk> chunks;
 
-    public DungeonRoom(DungeonChunk chunk, int level, RoomConfiguration roomConfiguration, String roomName){
-        setChunk(chunk);
-        setLevel(level);
+    public DungeonRoom(List<DungeonChunk> chunks, RoomConfiguration roomConfiguration){
+        setChunks(chunks);
         setRoomConfiguration(roomConfiguration);
-        setRoomName(roomName);
-    }
-
-    public void setChunk(DungeonChunk chunk) {
-        this.chunk = chunk;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
     }
 
     public void setRoomConfiguration(RoomConfiguration roomConfiguration) {
         this.roomConfiguration = roomConfiguration;
     }
 
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
-    }
-
-    public DungeonChunk getChunk() {
-        return chunk;
-    }
-
-    public int getLevel() {
-        return level;
+    public void setChunks(List<DungeonChunk> chunks) {
+        this.chunks = chunks;
     }
 
     public RoomConfiguration getRoomConfiguration() {
         return roomConfiguration;
     }
 
-    public String getRoomName() {
-        return roomName;
+    public List<DungeonChunk> getChunks() {
+        return chunks;
+    }
+
+    public DungeonChunk getPasteChunk(){
+        if (chunks.isEmpty()) return null;
+        DungeonChunk pc = chunks.get(0);
+        for (DungeonChunk dc : chunks){
+            if (dc.getX() <= pc.getX() && dc.getZ() <= pc.getZ() && dc.getLevel() <= pc.getLevel())
+                pc = dc;
+        }
+        return pc;
     }
 
     @Override
     public String toString() {
         return "DungeonRoom{" +
-                "chunk=" + chunk +
-                ", level=" + level +
-                ", roomConfiguration=" + roomConfiguration +
-                ", roomName='" + roomName + '\'' +
+                "roomConfiguration=" + roomConfiguration +
+                ", chunks=" + chunks +
                 '}';
     }
 }

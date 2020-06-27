@@ -1,8 +1,11 @@
 package com.tyrriel.simpledungeons.data;
 
+import com.sk89q.worldedit.util.Direction;
 import com.tyrriel.simpledungeons.SimpleDungeons;
 import com.tyrriel.simpledungeons.objects.DungeonConfiguration;
-import com.tyrriel.simpledungeons.objects.enums.RoomConfiguration;
+import com.tyrriel.simpledungeons.objects.RoomConfiguration;
+import com.tyrriel.simpledungeons.objects.RoomConfigurationOpening;
+import com.tyrriel.simpledungeons.objects.enums.RoomType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -63,44 +66,51 @@ public class FileManager {
 
     public static DungeonConfiguration readTilesetConfig(File folder){
         DungeonConfiguration dungeonConfiguration = new DungeonConfiguration();
-        HashMap<RoomConfiguration, List<String>> map = new HashMap<>();
         File file = new File(folder, "config.yml");
-        FileConfiguration fileConfiguration = YamlConfiguration.loadConfiguration(file);
         if (!file.exists()) return null;
-        ConfigurationSection configurationSection = fileConfiguration.getConfigurationSection("Rooms");
-        if (configurationSection != null) {
-            for (String path : configurationSection.getKeys(false)) {
-                try {
-                    RoomConfiguration roomConfiguration = RoomConfiguration.valueOf(path);
-                    map.put(roomConfiguration, configurationSection.getStringList(path));
-                } catch (IllegalArgumentException e){
-                    SimpleDungeons.simpleDungeons.getLogger().severe(path + " is not a recognized room configuration!");
-                    return null;
-                }
-            }
-            dungeonConfiguration.setRoomNames(map);
-        } else {
-            for (RoomConfiguration roomConfiguration : RoomConfiguration.values()){
-                fileConfiguration.set("Rooms." + roomConfiguration.toString(), Collections.singletonList("REPLACEME"));
-            }
-            try {
-                fileConfiguration.save(file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        FileConfiguration fileConfiguration = YamlConfiguration.loadConfiguration(file);
         if (fileConfiguration.isSet("PathLength")) {
             int pathLength = fileConfiguration.getInt("PathLength");
             dungeonConfiguration.setPathLength(pathLength);
         } else {
             fileConfiguration.set("PathLength", 20);
-            try {
-                fileConfiguration.save(file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            save(fileConfiguration, file);
             dungeonConfiguration.setPathLength(20);
         }
+
+        ConfigurationSection roomSection = fileConfiguration.getConfigurationSection("Rooms");
+        List<RoomConfiguration> rooms = new ArrayList<>();
+        if (roomSection != null) {
+            for (String path : roomSection.getKeys(false)) {
+                String schematic = path;
+                int sx = roomSection.getInt(path + ".Size.x");
+                int sy = roomSection.getInt(path + ".Size.y");
+                int sz = roomSection.getInt(path + ".Size.z");
+                RoomType roomType = RoomType.valueOf(roomSection.getString(path + ".RoomType"));
+
+                HashMap<Direction, RoomConfigurationOpening> openings = new HashMap<>();
+                ConfigurationSection openingsSection = fileConfiguration.getConfigurationSection("Rooms." + path + ".Openings");
+                if (openingsSection == null) continue;
+                for (String dir : openingsSection.getKeys(false)){
+                    try {
+                        Direction direction = Direction.valueOf(dir);
+                        int x = openingsSection.getInt(dir + ".x");
+                        int y = openingsSection.getInt(dir + ".y");
+                        int z = openingsSection.getInt(dir + ".z");
+
+                        RoomConfigurationOpening opening = new RoomConfigurationOpening(x, y, z, direction);
+                        openings.put(direction, opening);
+                    } catch (IllegalArgumentException e){
+                        SimpleDungeons.simpleDungeons.getLogger().severe(dir + " is not a valid direction!");
+                        return null;
+                    }
+                }
+
+                RoomConfiguration roomConfiguration = new RoomConfiguration(schematic, sx, sy, sz, roomType, openings);
+                rooms.add(roomConfiguration);
+            }
+        }
+        dungeonConfiguration.setRooms(rooms);
         return dungeonConfiguration;
     }
 
@@ -129,6 +139,14 @@ public class FileManager {
         }
         try(PrintWriter pw = new PrintWriter(fileWriter) ) {
             pw.println("[" + format.format(date) + "] " + message);
+        }
+    }
+
+    private static void save(FileConfiguration fileConfiguration, File file){
+        try {
+            fileConfiguration.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

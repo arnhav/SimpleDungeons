@@ -18,15 +18,16 @@ public class SignManager {
         System.out.println("Finding TileEntities...");
         HashSet<DungeonChunk> seen = new HashSet<>();
         for (DungeonRoom dr : dungeon.getRooms()){
-            DungeonChunk dc = dr.getChunk();
-            if (seen.contains(dc)) continue;
-            seen.add(dc);
-            World world = Bukkit.getWorld(dc.getWorld());
-            if (world == null) continue;
-            world.getChunkAtAsync(dc.getX(), dc.getZ()).thenAccept(chunk -> {
-                BlockState[] tileEntities = chunk.getTileEntities();
-                findAndUnpackSigns(dungeon, tileEntities);
-            });
+            for (DungeonChunk dc : dr.getChunks()) {
+                if (seen.contains(dc)) continue;
+                seen.add(dc);
+                World world = Bukkit.getWorld(dc.getWorld());
+                if (world == null) continue;
+                world.getChunkAtAsync(dc.getX(), dc.getZ()).thenAccept(chunk -> {
+                    BlockState[] tileEntities = chunk.getTileEntities();
+                    findAndUnpackSigns(dungeon, tileEntities);
+                });
+            }
         }
         System.out.println("Done finding TileEntities...");
     }
@@ -50,6 +51,7 @@ public class SignManager {
                 DungeonBoss db = new DungeonBoss(mob, location);
                 if (!addTrigger(dungeon, sign, db))
                     db.spawn();
+                dungeon.setDungeonBoss(db);
                 block.setType(Material.AIR);
             }
             if (type.equalsIgnoreCase("CHEST")){

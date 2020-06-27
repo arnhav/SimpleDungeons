@@ -1,0 +1,12 @@
+Rooms:
+  ruins_start:
+    Start:
+    Size:
+      x:
+      y:
+      z:
+    Openings:
+      NORTH:
+        x:
+        y:
+        z:

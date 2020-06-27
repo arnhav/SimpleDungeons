@@ -1,18 +1,17 @@
 package com.tyrriel.simpledungeons.objects;
 
-import org.bukkit.World;
-
 import java.util.Objects;
 
 public class DungeonChunk {
 
     private String world;
-    private int x, z;
+    private int x, z, level;
 
-    public DungeonChunk(String world, int x, int z){
+    public DungeonChunk(String world, int x, int z, int level){
         setWorld(world);
         setX(x);
         setZ(z);
+        setLevel(level);
     }
 
     public void setWorld(String world) {
@@ -27,6 +26,10 @@ public class DungeonChunk {
         this.z = z;
     }
 
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     public String getWorld() {
         return world;
     }
@@ -39,6 +42,10 @@ public class DungeonChunk {
         return z;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -46,12 +53,13 @@ public class DungeonChunk {
         DungeonChunk that = (DungeonChunk) o;
         return x == that.x &&
                 z == that.z &&
+                level == that.level &&
                 world.equals(that.world);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(world, x, z);
+        return Objects.hash(world, x, z, level);
     }
 
     @Override
@@ -60,6 +68,7 @@ public class DungeonChunk {
                 "world='" + world + '\'' +
                 ", x=" + x +
                 ", z=" + z +
+                ", level=" + level +
                 '}';
     }
 }
