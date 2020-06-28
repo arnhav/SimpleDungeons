@@ -85,7 +85,10 @@ public class SimpleDungeonCommand implements CommandExecutor {
             }
             World world = Bukkit.getWorld(dungeon.getWorld());
             if (world == null) return true;
-            if (!dungeon.getRoomsToPaste().isEmpty()) return true;
+            if (!dungeon.isReady()) {
+                sender.sendMessage(ChatColor.RED + "The dungeon is not ready");
+                return true;
+            }
             DungeonPlayer dp = new DungeonPlayer(p, p.getLocation(), args[1]);
             DungeonManager.dungeonPlayers.put(p, dp);
             Location location = dungeon.getStart();

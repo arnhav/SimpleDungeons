@@ -2,9 +2,7 @@ package com.tyrriel.simpledungeons.data;
 
 import com.sk89q.worldedit.util.Direction;
 import com.tyrriel.simpledungeons.SimpleDungeons;
-import com.tyrriel.simpledungeons.objects.DungeonConfiguration;
-import com.tyrriel.simpledungeons.objects.RoomConfiguration;
-import com.tyrriel.simpledungeons.objects.RoomConfigurationOpening;
+import com.tyrriel.simpledungeons.objects.generation.*;
 import com.tyrriel.simpledungeons.objects.enums.RoomType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;

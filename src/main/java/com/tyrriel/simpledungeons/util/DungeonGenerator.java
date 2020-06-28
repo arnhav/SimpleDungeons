@@ -3,6 +3,10 @@ package com.tyrriel.simpledungeons.util;
 import com.tyrriel.simpledungeons.SimpleDungeons;
 import com.tyrriel.simpledungeons.data.FileManager;
 import com.tyrriel.simpledungeons.objects.*;
+import com.tyrriel.simpledungeons.objects.generation.DungeonChunk;
+import com.tyrriel.simpledungeons.objects.generation.DungeonConfiguration;
+import com.tyrriel.simpledungeons.objects.generation.DungeonRoom;
+import com.tyrriel.simpledungeons.objects.generation.RoomConfiguration;
 import org.bukkit.*;
 
 import java.io.File;

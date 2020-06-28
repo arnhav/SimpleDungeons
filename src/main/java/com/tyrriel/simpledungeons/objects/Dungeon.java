@@ -1,11 +1,11 @@
 package com.tyrriel.simpledungeons.objects;
 
+import com.tyrriel.simpledungeons.objects.generation.*;
+import com.tyrriel.simpledungeons.objects.mechanics.*;
 import org.bukkit.Location;
-import org.bukkit.block.Chest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -20,10 +20,12 @@ public class Dungeon {
 
     private ArrayList<DungeonRoom> rooms;
     private LinkedBlockingQueue<DungeonRoom> roomsToPaste;
-    private HashSet<Chest> openedChest;
 
     private HashMap<String, DungeonDoor> dungeonDoors;
+    private HashMap<Location, DungeonChest> chests;
     private HashMap<DungeonTrigger, List<Object>> triggeredObjects;
+
+    private boolean ready = false;
 
     public Dungeon(String name, String tileset, String world, DungeonConfiguration dungeonConfiguration){
         setName(name);
@@ -33,7 +35,7 @@ public class Dungeon {
 
         rooms = new ArrayList<>();
         roomsToPaste = new LinkedBlockingQueue<>();
-        openedChest = new HashSet<>();
+        chests = new HashMap<>();
         triggeredObjects = new HashMap<>();
         dungeonDoors = new HashMap<>();
     }
@@ -62,8 +64,8 @@ public class Dungeon {
         this.dungeonConfiguration = dungeonConfiguration;
     }
 
-    public void setChestToOpened(Chest chest) {
-        openedChest.add(chest);
+    public void addChest(Location location, DungeonChest chest) {
+        chests.put(location, chest);
     }
 
     public void setStart(Location start) {
@@ -76,6 +78,10 @@ public class Dungeon {
 
     public String getName() {
         return name;
+    }
+
+    public void setReady(boolean ready) {
+        this.ready = ready;
     }
 
     public String getTileset() {
@@ -98,8 +104,8 @@ public class Dungeon {
         return dungeonConfiguration;
     }
 
-    public HashSet<Chest> getOpenedChest() {
-        return openedChest;
+    public HashMap<Location, DungeonChest> getChests() {
+        return chests;
     }
 
     public Location getStart() {
@@ -108,6 +114,10 @@ public class Dungeon {
 
     public DungeonBoss getDungeonBoss() {
         return dungeonBoss;
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 
     public void addRoom(DungeonRoom dungeonRoom){
@@ -176,6 +186,9 @@ public class Dungeon {
             }
             if (object.getClass() == DungeonBlock.class){
                 ((DungeonBlock) object).trigger();
+            }
+            if (object.getClass() == DungeonChest.class){
+                ((DungeonChest) object).trigger();
             }
         }
     }

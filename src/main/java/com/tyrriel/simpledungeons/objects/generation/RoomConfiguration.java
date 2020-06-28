@@ -1,4 +1,4 @@
-package com.tyrriel.simpledungeons.objects;
+package com.tyrriel.simpledungeons.objects.generation;
 
 import com.sk89q.worldedit.util.Direction;
 import com.tyrriel.simpledungeons.objects.enums.RoomType;

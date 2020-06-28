@@ -1,4 +1,4 @@
-package com.tyrriel.simpledungeons.objects;
+package com.tyrriel.simpledungeons.objects.mechanics;
 
 import com.tyrriel.simpledungeons.SimpleDungeons;
 import org.bukkit.*;

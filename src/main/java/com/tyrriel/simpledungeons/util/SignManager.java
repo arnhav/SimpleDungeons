@@ -2,12 +2,14 @@ package com.tyrriel.simpledungeons.util;
 
 import com.tyrriel.simpledungeons.objects.*;
 import com.tyrriel.simpledungeons.objects.enums.TriggerType;
+import com.tyrriel.simpledungeons.objects.generation.DungeonChunk;
+import com.tyrriel.simpledungeons.objects.generation.DungeonRoom;
+import com.tyrriel.simpledungeons.objects.mechanics.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.*;
-import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Rotatable;
 
 import java.util.HashSet;
@@ -30,6 +32,7 @@ public class SignManager {
             }
         }
         System.out.println("Done finding TileEntities...");
+        dungeon.setReady(true);
     }
 
     public static void findAndUnpackSigns(Dungeon dungeon, BlockState[] tileEntities){
@@ -57,10 +60,17 @@ public class SignManager {
             if (type.equalsIgnoreCase("CHEST")){
                 Rotatable signData = (Rotatable) block.getBlockData().clone();
                 BlockFace facing = signData.getRotation();
-                block.setType(Material.TRAPPED_CHEST);
-                Directional chestData = (Directional) block.getBlockData();
-                chestData.setFacing(facing);
-                block.setBlockData(chestData);
+                String loottable = sign.getLine(2);
+                if (loottable.equalsIgnoreCase("")) continue;
+                DungeonChest dc = new DungeonChest(location, facing);
+                dc.setLoottable(loottable);
+                dungeon.addChest(location, dc);
+                if (addTrigger(dungeon, sign, dc)) {
+                    block.setType(Material.AIR);
+                    continue;
+                }
+                dc.trigger();
+
             }
             if (type.equalsIgnoreCase("DOOR")){
                 String name = sign.getLine(2);

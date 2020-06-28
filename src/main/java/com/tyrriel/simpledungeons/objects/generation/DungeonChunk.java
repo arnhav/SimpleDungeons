@@ -1,4 +1,4 @@
-package com.tyrriel.simpledungeons.objects;
+package com.tyrriel.simpledungeons.objects.generation;
 
 import java.util.Objects;
 

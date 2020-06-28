@@ -1,4 +1,4 @@
-package com.tyrriel.simpledungeons.objects;
+package com.tyrriel.simpledungeons.objects.mechanics;
 
 import io.lumine.xikage.mythicmobs.api.exceptions.InvalidMobTypeException;
 import org.bukkit.Location;

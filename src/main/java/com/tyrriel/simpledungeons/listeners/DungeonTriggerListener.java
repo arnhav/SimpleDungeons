@@ -2,6 +2,9 @@ package com.tyrriel.simpledungeons.listeners;
 
 import com.tyrriel.simpledungeons.objects.*;
 import com.tyrriel.simpledungeons.objects.enums.TriggerType;
+import com.tyrriel.simpledungeons.objects.mechanics.DungeonBoss;
+import com.tyrriel.simpledungeons.objects.mechanics.DungeonDoor;
+import com.tyrriel.simpledungeons.objects.mechanics.DungeonTrigger;
 import com.tyrriel.simpledungeons.util.DungeonManager;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import io.lumine.xikage.mythicmobs.mobs.ActiveMob;

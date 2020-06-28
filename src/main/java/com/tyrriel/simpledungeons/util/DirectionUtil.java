@@ -1,7 +1,6 @@
 package com.tyrriel.simpledungeons.util;
 
 import com.sk89q.worldedit.util.Direction;
-import com.tyrriel.simpledungeons.objects.DungeonRoom;
 
 public class DirectionUtil {
 
