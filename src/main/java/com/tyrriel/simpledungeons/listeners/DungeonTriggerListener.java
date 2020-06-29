@@ -46,6 +46,10 @@ public class DungeonTriggerListener implements Listener {
         DungeonDoor dd = dungeon.getDungeonDoor(block.getLocation());
         if (dd == null) return;
         if (dd.isOpen()) return;
+        if (!dd.getKey().equalsIgnoreCase("")){
+            // TODO: Check the player for the key
+            return;
+        }
         player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 3f, 1.5f);
         dd.openDoor();
         DungeonTrigger dt = new DungeonTrigger(TriggerType.DOOR, dd.getName());

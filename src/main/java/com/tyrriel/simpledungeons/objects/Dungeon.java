@@ -187,6 +187,9 @@ public class Dungeon {
             if (object.getClass() == DungeonBlock.class){
                 ((DungeonBlock) object).trigger();
             }
+            if (object.getClass() == DungeonPortal.class){
+                ((DungeonPortal) object).trigger();
+            }
             if (object.getClass() == DungeonChest.class){
                 ((DungeonChest) object).trigger();
             }

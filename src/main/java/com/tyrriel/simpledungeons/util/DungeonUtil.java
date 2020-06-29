@@ -41,7 +41,7 @@ public class DungeonUtil {
         HashMap<DungeonChunk, Direction> endCaps = getEndCapsWithDirection(dungeon);
         endCaps.putAll(getAllEndCaps(dungeon));
         for (RoomConfiguration brc : bossRoomConfigs) {
-            if (doesDungeonHaveBossRoom(dungeon)) continue;
+            if (doesDungeonHaveRoomType(dungeon, RoomType.BOSS)) continue;
             for (DungeonChunk ec : endCaps.keySet()) {
                 Direction direction = endCaps.get(ec);
                 if (!brc.getOpenings().containsKey(direction)) continue;
@@ -108,10 +108,10 @@ public class DungeonUtil {
         return false;
     }
 
-    public static boolean doesDungeonHaveBossRoom(Dungeon dungeon){
+    public static boolean doesDungeonHaveRoomType(Dungeon dungeon, RoomType rt){
         for (DungeonRoom dr: dungeon.getRooms()){
             RoomConfiguration rc = dr.getRoomConfiguration();
-            if (rc.getRoomType() == RoomType.BOSS) return true;
+            if (rc.getRoomType() == rt) return true;
         }
         return false;
     }

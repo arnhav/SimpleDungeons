@@ -9,11 +9,12 @@ public class DungeonDoor {
     private Location point1, point2;
     private Material doorMaterial;
     private String name;
+    private String key;
     private World world;
 
     private boolean isOpen = false;
 
-    public DungeonDoor(String name, World world){
+    public DungeonDoor(String name, String key, World world){
         setName(name);
         setWorld(world);
     }
@@ -32,6 +33,10 @@ public class DungeonDoor {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public void setWorld(World world) {
@@ -58,6 +63,10 @@ public class DungeonDoor {
         return name;
     }
 
+    public String getKey() {
+        return key == null ? "" : key;
+    }
+
     public boolean isOpen() {
         return isOpen;
     }
@@ -78,7 +87,7 @@ public class DungeonDoor {
             for (int x = minx; x <= maxx; x++){
                 for (int z = minz; z <= maxz; z++){
                     Block block = world.getBlockAt(x, y, z);
-                    block.setType(doorMaterial);
+                    block.setType(doorMaterial != null ? doorMaterial : Material.AIR);
                 }
             }
         }
@@ -108,7 +117,7 @@ public class DungeonDoor {
                     }
                 }
                 Location sound = world.getBlockAt(((minx+maxx)/2), ((miny+maxy)/2), ((minz+maxz)/2)).getLocation();
-                world.playSound(sound, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 3f, 0.5f);
+                world.playSound(sound, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1f, 0.5f);
                 y[0]++;
                 Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, this, 20);
             }

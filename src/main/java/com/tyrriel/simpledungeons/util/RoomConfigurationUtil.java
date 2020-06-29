@@ -1,10 +1,9 @@
 package com.tyrriel.simpledungeons.util;
 
 import com.sk89q.worldedit.util.Direction;
+import com.tyrriel.simpledungeons.objects.Dungeon;
 import com.tyrriel.simpledungeons.objects.enums.RoomType;
-import com.tyrriel.simpledungeons.objects.generation.DungeonChunk;
-import com.tyrriel.simpledungeons.objects.generation.RoomConfiguration;
-import com.tyrriel.simpledungeons.objects.generation.RoomConfigurationOpening;
+import com.tyrriel.simpledungeons.objects.generation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +44,7 @@ public class RoomConfigurationUtil {
     public static List<RoomConfiguration> getAllRoomsOpenInDirection(List<RoomConfiguration> rooms, Direction direction){
         List<RoomConfiguration> list = new ArrayList<>();
         for (RoomConfiguration rc : rooms){
+            if (rc.getOpenings().size() == 1) continue;
             if (rc.getOpenings().containsKey(direction) && rc.getRoomType() == RoomType.GENERIC)
                 list.add(rc);
         }
@@ -71,6 +71,18 @@ public class RoomConfigurationUtil {
                 list.add(rc);
         }
         return list;
+    }
+
+    public static int getNumRoomConfigsInDungeon(Dungeon d, RoomConfiguration rc){
+        int count = 0;
+        for (DungeonRoom dr : d.getRooms()){
+            if (dr.getRoomConfiguration().equals(rc)) count++;
+        }
+        return count;
+    }
+
+    public static boolean doesDungeonHaveRoomConfig(Dungeon d, RoomConfiguration rc){
+        return getNumRoomConfigsInDungeon(d, rc) > 0;
     }
 
 }

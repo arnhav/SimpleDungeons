@@ -4,6 +4,7 @@ import com.sk89q.worldedit.util.Direction;
 import com.tyrriel.simpledungeons.objects.enums.RoomType;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class RoomConfiguration {
 
@@ -79,5 +80,23 @@ public class RoomConfiguration {
                 ", roomType=" + roomType +
                 ", openings=" + openings +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoomConfiguration that = (RoomConfiguration) o;
+        return sizeX == that.sizeX &&
+                sizeY == that.sizeY &&
+                sizeZ == that.sizeZ &&
+                fileName.equals(that.fileName) &&
+                roomType == that.roomType &&
+                openings.equals(that.openings);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fileName, sizeX, sizeY, sizeZ, roomType, openings);
     }
 }

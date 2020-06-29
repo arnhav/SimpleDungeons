@@ -1,6 +1,5 @@
 package com.tyrriel.simpledungeons.objects.mechanics;
 
-import com.tyrriel.simpledungeons.util.BlockUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -44,9 +43,6 @@ public class DungeonBlock {
     public void trigger(){
         Block block = location.getBlock();
         block.setType(triggered);
-        if (block.getType() == Material.END_GATEWAY) {
-            BlockUtil.makeEndPortalGateway(block);
-        }
     }
 
     @Override
