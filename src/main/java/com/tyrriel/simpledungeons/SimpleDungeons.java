@@ -1,11 +1,10 @@
 package com.tyrriel.simpledungeons;
 
 import com.tyrriel.simpledungeons.commands.*;
-import com.tyrriel.simpledungeons.listeners.DungeonChestListener;
-import com.tyrriel.simpledungeons.listeners.DungeonTriggerListener;
+import com.tyrriel.simpledungeons.listeners.*;
 import com.tyrriel.simpledungeons.data.FileManager;
-import com.tyrriel.simpledungeons.listeners.DungeonMobSpawnListener;
-import com.tyrriel.simpledungeons.listeners.DungeonPortalListener;
+import com.tyrriel.simpledungeons.objects.Dungeon;
+import com.tyrriel.simpledungeons.util.DungeonManager;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import io.lumine.xikage.mythicmobs.api.bukkit.BukkitAPIHelper;
 import org.bukkit.Bukkit;
@@ -25,10 +24,12 @@ public final class SimpleDungeons extends JavaPlugin {
 
         getCommand("simpledungeon").setExecutor(new SimpleDungeonCommand());
 
+        Bukkit.getPluginManager().registerEvents(new GUIListener(), this);
+
         Bukkit.getPluginManager().registerEvents(new DungeonTriggerListener(), this);
         Bukkit.getPluginManager().registerEvents(new DungeonChestListener(), this);
-        Bukkit.getPluginManager().registerEvents(new DungeonMobSpawnListener(), this);
         Bukkit.getPluginManager().registerEvents(new DungeonPortalListener(), this);
+        Bukkit.getPluginManager().registerEvents(new DungeonPlayerListener(), this);
 
         FileManager.createConfig(this);
         FileManager.createLogFile(this);
@@ -39,5 +40,8 @@ public final class SimpleDungeons extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        for (Dungeon dungeon : DungeonManager.dungeons){
+            dungeon.deleteDungeonFloorIfNoMorePlayers();
+        }
     }
 }

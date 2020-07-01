@@ -1,6 +1,6 @@
 package com.tyrriel.simpledungeons.listeners;
 
-import com.tyrriel.simpledungeons.objects.Dungeon;
+import com.tyrriel.simpledungeons.objects.DungeonFloor;
 import com.tyrriel.simpledungeons.objects.mechanics.DungeonChest;
 import com.tyrriel.simpledungeons.util.DungeonManager;
 import org.bukkit.Material;
@@ -23,22 +23,22 @@ public class DungeonChestListener implements Listener {
 
         if (!DungeonManager.isDungeonWorld(block.getWorld())) return;
 
-        Dungeon dungeon = DungeonManager.getDungeon(block.getWorld());
+        DungeonFloor dungeonFloor = DungeonManager.getDungeonFloor(block.getWorld());
 
-        if (dungeon == null) return;
+        if (dungeonFloor == null) return;
 
-        if (!dungeon.getChests().containsKey(block.getLocation())) return;
+        if (!dungeonFloor.getChests().containsKey(block.getLocation())) return;
 
         Chest chest = (Chest) block.getState();
 
-        DungeonChest dc = dungeon.getChests().get(block.getLocation());
+        DungeonChest dc = dungeonFloor.getChests().get(block.getLocation());
 
         if (dc.isLooted()) return;
 
         dc.setLooted(true);
         chest.setLootTable(LootTables.END_CITY_TREASURE.getLootTable());
         chest.update();
-        dungeon.addChest(block.getLocation(), dc);
+        dungeonFloor.addChest(block.getLocation(), dc);
     }
 
 }

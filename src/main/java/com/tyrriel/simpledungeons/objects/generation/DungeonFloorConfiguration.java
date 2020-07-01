@@ -2,12 +2,12 @@ package com.tyrriel.simpledungeons.objects.generation;
 
 import java.util.List;
 
-public class DungeonConfiguration {
+public class DungeonFloorConfiguration {
 
     private int pathLength;
     private List<RoomConfiguration> rooms;
 
-    public DungeonConfiguration(){}
+    public DungeonFloorConfiguration(){}
 
     public void setPathLength(int pathLength) {
         this.pathLength = pathLength;

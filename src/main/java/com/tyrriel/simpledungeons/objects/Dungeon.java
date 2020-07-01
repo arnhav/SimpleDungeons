@@ -1,198 +1,73 @@
 package com.tyrriel.simpledungeons.objects;
 
-import com.tyrriel.simpledungeons.objects.generation.*;
-import com.tyrriel.simpledungeons.objects.mechanics.*;
-import org.bukkit.Location;
+import com.tyrriel.simpledungeons.SimpleDungeons;
+import com.tyrriel.simpledungeons.data.FileManager;
+import com.tyrriel.simpledungeons.objects.instance.DungeonGroup;
+import com.tyrriel.simpledungeons.util.DungeonGenerator;
+import com.tyrriel.simpledungeons.util.DungeonManager;
+import com.tyrriel.simpledungeons.util.RandomUtil;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.io.File;
 
 public class Dungeon {
 
-    private String name;
-    private String tileset;
-    private String world;
     private DungeonConfiguration dungeonConfiguration;
-    private Location start;
-    private DungeonBoss dungeonBoss;
+    private DungeonFloor dungeonFloor;
+    private DungeonGroup dungeonGroup;
 
-    private ArrayList<DungeonRoom> rooms;
-    private LinkedBlockingQueue<DungeonRoom> roomsToPaste;
-
-    private HashMap<String, DungeonDoor> dungeonDoors;
-    private HashMap<Location, DungeonChest> chests;
-    private HashMap<DungeonTrigger, List<Object>> triggeredObjects;
-
-    private boolean ready = false;
-
-    public Dungeon(String name, String tileset, String world, DungeonConfiguration dungeonConfiguration){
-        setName(name);
-        setTileset(tileset);
-        setWorld(world);
+    public Dungeon(DungeonConfiguration dungeonConfiguration){
         setDungeonConfiguration(dungeonConfiguration);
-
-        rooms = new ArrayList<>();
-        roomsToPaste = new LinkedBlockingQueue<>();
-        chests = new HashMap<>();
-        triggeredObjects = new HashMap<>();
-        dungeonDoors = new HashMap<>();
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setTileset(String tileset) {
-        this.tileset = tileset;
-    }
-
-    public void setRooms(ArrayList<DungeonRoom> rooms) {
-        this.rooms = rooms;
-    }
-
-    public void setRoomsToPaste(LinkedBlockingQueue<DungeonRoom> roomsToPaste) {
-        this.roomsToPaste = roomsToPaste;
-    }
-
-    public void setWorld(String world) {
-        this.world = world;
     }
 
     public void setDungeonConfiguration(DungeonConfiguration dungeonConfiguration) {
         this.dungeonConfiguration = dungeonConfiguration;
     }
 
-    public void addChest(Location location, DungeonChest chest) {
-        chests.put(location, chest);
+    public void setDungeonFloor(DungeonFloor dungeonFloor) {
+        this.dungeonFloor = dungeonFloor;
     }
 
-    public void setStart(Location start) {
-        this.start = start;
-    }
-
-    public void setDungeonBoss(DungeonBoss dungeonBoss) {
-        this.dungeonBoss = dungeonBoss;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setReady(boolean ready) {
-        this.ready = ready;
-    }
-
-    public String getTileset() {
-        return tileset;
-    }
-
-    public ArrayList<DungeonRoom> getRooms() {
-        return rooms;
-    }
-
-    public LinkedBlockingQueue<DungeonRoom> getRoomsToPaste() {
-        return roomsToPaste;
-    }
-
-    public String getWorld() {
-        return world;
+    public void setDungeonGroup(DungeonGroup dungeonGroup) {
+        this.dungeonGroup = dungeonGroup;
     }
 
     public DungeonConfiguration getDungeonConfiguration() {
         return dungeonConfiguration;
     }
 
-    public HashMap<Location, DungeonChest> getChests() {
-        return chests;
+    public DungeonFloor getDungeonFloor() {
+        return dungeonFloor;
     }
 
-    public Location getStart() {
-        return start;
+    public DungeonGroup getDungeonGroup() {
+        return dungeonGroup;
     }
 
-    public DungeonBoss getDungeonBoss() {
-        return dungeonBoss;
+    public DungeonFloor createDungeonFloor() {
+        String worldName = "SD_" + dungeonConfiguration.getId() + "_" + DungeonManager.dungeonGroups.get(dungeonConfiguration).indexOf(dungeonGroup);
+        String tileset = dungeonConfiguration.getTilesets().get(RandomUtil.randomWithRange(0, dungeonConfiguration.getTilesets().size()-1));
+        DungeonGenerator.createWorld(worldName);
+        Bukkit.getScheduler().runTaskAsynchronously(SimpleDungeons.simpleDungeons, ()->{
+            dungeonFloor = DungeonGenerator.generateDungeon(tileset, worldName);
+        });
+        Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, ()->{
+            DungeonGenerator.placeRooms(dungeonFloor);
+        }, 2*20);
+        setDungeonFloor(dungeonFloor);
+        return dungeonFloor;
     }
 
-    public boolean isReady() {
-        return ready;
-    }
-
-    public void addRoom(DungeonRoom dungeonRoom){
-        rooms.add(dungeonRoom);
-        roomsToPaste.add(dungeonRoom);
-    }
-
-    public void removeRoom(DungeonRoom dungeonRoom){
-        rooms.remove(dungeonRoom);
-        roomsToPaste.remove(dungeonRoom);
-    }
-
-    public void addTrigger(DungeonTrigger dungeonTrigger, Object object){
-        List<Object> objects = triggeredObjects.getOrDefault(dungeonTrigger, new ArrayList<>());
-        objects.add(object);
-        triggeredObjects.put(dungeonTrigger, objects);
-    }
-
-    public void addDungeonDoor(DungeonDoor dd, Location point){
-        String name = dd.getName();
-        DungeonDoor door = dungeonDoors.get(name);
-        if (door == null){
-            door = dd;
-            door.setPoint1(point);
-        } else {
-            if (door.getPoint2() == null) {
-                door.setPoint2(point);
-                door.fillDoor();
-            }
-        }
-        dungeonDoors.put(name, door);
-    }
-
-    public DungeonDoor getDungeonDoor(Location location){
-        for (DungeonDoor door : dungeonDoors.values()){
-            Location point1 = door.getPoint1();
-            Location point2 = door.getPoint2();
-            if (point1 == null) continue;
-            if (point2 == null) continue;
-            int minX = Math.min(point1.getBlockX(), point2.getBlockX());
-            int maxX = Math.max(point1.getBlockX(), point2.getBlockX());
-            int minZ = Math.min(point1.getBlockZ(), point2.getBlockZ());
-            int maxZ = Math.max(point1.getBlockZ(), point2.getBlockZ());
-            int minY = Math.min(point1.getBlockY(), point2.getBlockY());
-            int maxY = Math.max(point1.getBlockY(), point2.getBlockY());
-            int X = location.getBlockX();
-            int Y = location.getBlockY();
-            int Z = location.getBlockZ();
-            if ((minX <= X && X <= maxX) &&
-                    (minY <= Y && Y <= maxY) &&
-                    (minZ <= Z && Z <= maxZ))
-                return door;
-        }
-        return null;
-    }
-
-    public void trigger(DungeonTrigger dungeonTrigger){
-        List<Object> objects = triggeredObjects.get(dungeonTrigger);
-        if (objects ==  null) return;
-        for (Object object : objects){
-            if (object.getClass() == DungeonMob.class){
-                ((DungeonMob) object).spawn();
-            }
-            if (object.getClass() == DungeonBoss.class){
-                ((DungeonBoss) object).spawn();
-            }
-            if (object.getClass() == DungeonBlock.class){
-                ((DungeonBlock) object).trigger();
-            }
-            if (object.getClass() == DungeonPortal.class){
-                ((DungeonPortal) object).trigger();
-            }
-            if (object.getClass() == DungeonChest.class){
-                ((DungeonChest) object).trigger();
-            }
-        }
+    public boolean deleteDungeonFloorIfNoMorePlayers(){
+        World world = Bukkit.getWorld(dungeonFloor.getName());
+        if (world == null) return false;
+        if (world.getPlayerCount() > 0) return false;
+        Bukkit.unloadWorld(world, false);
+        File worldFile = new File(Bukkit.getWorldContainer(), dungeonFloor.getName());
+        FileManager.deleteDirectory(worldFile);
+        System.out.println("Dungeon " + dungeonFloor.getName() + " deleted.");
+        dungeonGroup.setPlayingDungeon(false);
+        return true;
     }
 }

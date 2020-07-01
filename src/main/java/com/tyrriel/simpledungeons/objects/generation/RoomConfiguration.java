@@ -4,16 +4,19 @@ import com.sk89q.worldedit.util.Direction;
 import com.tyrriel.simpledungeons.objects.enums.RoomType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class RoomConfiguration {
 
     private String fileName;
-    private int sizeX, sizeY, sizeZ;
     private RoomType roomType;
+    private int limit;
+    private List<String> incompat;
+    private int sizeX, sizeY, sizeZ;
     private HashMap<Direction, RoomConfigurationOpening> openings;
 
-    public RoomConfiguration(String fileName, int sizeX, int sizeY, int sizeZ, RoomType roomType, HashMap<Direction, RoomConfigurationOpening> openings){
+    public RoomConfiguration(String fileName, RoomType roomType, int limit, List<String> incompat, int sizeX, int sizeY, int sizeZ, HashMap<Direction, RoomConfigurationOpening> openings){
         setFileName(fileName);
         setSizeX(sizeX);
         setSizeY(sizeY);
@@ -24,6 +27,18 @@ public class RoomConfiguration {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    public void setIncompat(List<String> incompat) {
+        this.incompat = incompat;
     }
 
     public void setSizeX(int sizeX) {
@@ -38,16 +53,24 @@ public class RoomConfiguration {
         this.sizeZ = sizeZ;
     }
 
-    public void setRoomType(RoomType roomType) {
-        this.roomType = roomType;
-    }
-
     public void setOpenings(HashMap<Direction, RoomConfigurationOpening> openings) {
         this.openings = openings;
     }
 
     public String getFileName() {
         return fileName;
+    }
+
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public List<String> getIncompat() {
+        return incompat;
     }
 
     public int getSizeX() {
@@ -60,10 +83,6 @@ public class RoomConfiguration {
 
     public int getSizeZ() {
         return sizeZ-1;
-    }
-
-    public RoomType getRoomType() {
-        return roomType;
     }
 
     public HashMap<Direction, RoomConfigurationOpening> getOpenings() {

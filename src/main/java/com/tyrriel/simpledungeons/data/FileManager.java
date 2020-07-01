@@ -2,8 +2,13 @@ package com.tyrriel.simpledungeons.data;
 
 import com.sk89q.worldedit.util.Direction;
 import com.tyrriel.simpledungeons.SimpleDungeons;
+import com.tyrriel.simpledungeons.objects.Dungeon;
+import com.tyrriel.simpledungeons.objects.DungeonConfiguration;
 import com.tyrriel.simpledungeons.objects.generation.*;
 import com.tyrriel.simpledungeons.objects.enums.RoomType;
+import com.tyrriel.simpledungeons.objects.instance.DungeonGroup;
+import com.tyrriel.simpledungeons.util.DungeonManager;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -34,6 +39,7 @@ public class FileManager {
                 plugin.saveDefaultConfig();
             } else {
                 plugin.getLogger().info("config.yml found, loading!");
+                loadConfig();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,18 +68,52 @@ public class FileManager {
         return new File(SimpleDungeons.simpleDungeons.getDataFolder(), "tilesets");
     }
 
-    public static DungeonConfiguration readTilesetConfig(File folder){
-        DungeonConfiguration dungeonConfiguration = new DungeonConfiguration();
+    private static void loadConfig(){
+        config = SimpleDungeons.simpleDungeons.getConfig();
+        ConfigurationSection configSection = config.getConfigurationSection("Dungeons");
+        if (configSection == null) return;
+        for (String path : configSection.getKeys(false)){
+            String name = configSection.getString(path + ".Name");
+            List<String> tilesets = configSection.getStringList(path + ".Tilesets");
+            DungeonConfiguration dc = new DungeonConfiguration(path, name, tilesets);
+            DungeonManager.dungeonConfigurations.put(path, dc);
+            List<DungeonGroup> dgs = new ArrayList<>();
+            for (int i = 0; i < 6; i++){
+                Dungeon dungeon = new Dungeon(dc);
+                DungeonGroup dg = new DungeonGroup(dungeon);
+                dgs.add(dg);
+                dungeon.setDungeonGroup(dg);
+                DungeonManager.dungeons.add(dungeon);
+            }
+            DungeonManager.dungeonGroups.put(dc, dgs);
+        }
+
+        final int[] i = {0};
+        Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, new Runnable() {
+            @Override
+            public void run() {
+                if (DungeonManager.dungeons.size() <= i[0]) return;
+                Dungeon dungeon = DungeonManager.dungeons.get(i[0]);
+                dungeon.createDungeonFloor();
+                i[0]++;
+                Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, this, 15*20);
+            }
+        }, 20);
+    }
+
+    public static DungeonFloorConfiguration readTilesetConfig(File folder){
+        DungeonFloorConfiguration dungeonFloorConfiguration = new DungeonFloorConfiguration();
         File file = new File(folder, "config.yml");
         if (!file.exists()) return null;
         FileConfiguration fileConfiguration = YamlConfiguration.loadConfiguration(file);
+
         if (fileConfiguration.isSet("PathLength")) {
             int pathLength = fileConfiguration.getInt("PathLength");
-            dungeonConfiguration.setPathLength(pathLength);
+            dungeonFloorConfiguration.setPathLength(pathLength);
         } else {
             fileConfiguration.set("PathLength", 20);
             save(fileConfiguration, file);
-            dungeonConfiguration.setPathLength(20);
+            dungeonFloorConfiguration.setPathLength(20);
         }
 
         ConfigurationSection roomSection = fileConfiguration.getConfigurationSection("Rooms");
@@ -81,10 +121,12 @@ public class FileManager {
         if (roomSection != null) {
             for (String path : roomSection.getKeys(false)) {
                 String schematic = path;
+                RoomType roomType = RoomType.valueOf(roomSection.getString(path + ".RoomType"));
+                int limit = roomSection.getInt(path + ".Limit");
+                List<String> incompat = roomSection.getStringList(path + ".Incompat");
                 int sx = roomSection.getInt(path + ".Size.x");
                 int sy = roomSection.getInt(path + ".Size.y");
                 int sz = roomSection.getInt(path + ".Size.z");
-                RoomType roomType = RoomType.valueOf(roomSection.getString(path + ".RoomType"));
 
                 HashMap<Direction, RoomConfigurationOpening> openings = new HashMap<>();
                 ConfigurationSection openingsSection = fileConfiguration.getConfigurationSection("Rooms." + path + ".Openings");
@@ -104,12 +146,12 @@ public class FileManager {
                     }
                 }
 
-                RoomConfiguration roomConfiguration = new RoomConfiguration(schematic, sx, sy, sz, roomType, openings);
+                RoomConfiguration roomConfiguration = new RoomConfiguration(schematic, roomType, limit, incompat, sx, sy, sz, openings);
                 rooms.add(roomConfiguration);
             }
         }
-        dungeonConfiguration.setRooms(rooms);
-        return dungeonConfiguration;
+        dungeonFloorConfiguration.setRooms(rooms);
+        return dungeonFloorConfiguration;
     }
 
     public static boolean deleteDirectory(File path) {

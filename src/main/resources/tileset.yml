@@ -1,6 +1,9 @@
 Rooms:
   ruins_start:
-    Start:
+    RoomType: START
+    Limit:
+    Incompat:
+      - ruins_start1
     Size:
       x:
       y:

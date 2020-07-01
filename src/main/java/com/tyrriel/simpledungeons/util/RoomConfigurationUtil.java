@@ -1,7 +1,7 @@
 package com.tyrriel.simpledungeons.util;
 
 import com.sk89q.worldedit.util.Direction;
-import com.tyrriel.simpledungeons.objects.Dungeon;
+import com.tyrriel.simpledungeons.objects.DungeonFloor;
 import com.tyrriel.simpledungeons.objects.enums.RoomType;
 import com.tyrriel.simpledungeons.objects.generation.*;
 
@@ -41,12 +41,16 @@ public class RoomConfigurationUtil {
         return new DungeonChunk(pc.getWorld(), pc.getX()+rco.getX(), pc.getZ()+rco.getZ(), pc.getLevel()+rco.getY());
     }
 
-    public static List<RoomConfiguration> getAllRoomsOpenInDirection(List<RoomConfiguration> rooms, Direction direction){
+    public static List<RoomConfiguration> getAllRoomsOpenInDirection(DungeonFloor df, RoomConfiguration prc, Direction direction){
+        List<RoomConfiguration> rooms = df.getDungeonFloorConfiguration().getRooms();
         List<RoomConfiguration> list = new ArrayList<>();
         for (RoomConfiguration rc : rooms){
             if (rc.getOpenings().size() == 1) continue;
-            if (rc.getOpenings().containsKey(direction) && rc.getRoomType() == RoomType.GENERIC)
-                list.add(rc);
+            if (!rc.getOpenings().containsKey(direction)) continue;
+            if (rc.getRoomType() != RoomType.GENERIC) continue;
+            if (rc.getLimit() > 0 && getNumRoomConfigsInDungeon(df, rc) > rc.getLimit()) continue;
+            if (prc.getIncompat().contains(rc.getFileName())) continue;
+            list.add(rc);
         }
         return list;
     }
@@ -73,7 +77,7 @@ public class RoomConfigurationUtil {
         return list;
     }
 
-    public static int getNumRoomConfigsInDungeon(Dungeon d, RoomConfiguration rc){
+    public static int getNumRoomConfigsInDungeon(DungeonFloor d, RoomConfiguration rc){
         int count = 0;
         for (DungeonRoom dr : d.getRooms()){
             if (dr.getRoomConfiguration().equals(rc)) count++;
@@ -81,7 +85,7 @@ public class RoomConfigurationUtil {
         return count;
     }
 
-    public static boolean doesDungeonHaveRoomConfig(Dungeon d, RoomConfiguration rc){
+    public static boolean doesDungeonHaveRoomConfig(DungeonFloor d, RoomConfiguration rc){
         return getNumRoomConfigsInDungeon(d, rc) > 0;
     }
 
