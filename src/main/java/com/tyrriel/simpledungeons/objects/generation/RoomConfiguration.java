@@ -18,10 +18,12 @@ public class RoomConfiguration {
 
     public RoomConfiguration(String fileName, RoomType roomType, int limit, List<String> incompat, int sizeX, int sizeY, int sizeZ, HashMap<Direction, RoomConfigurationOpening> openings){
         setFileName(fileName);
+        setRoomType(roomType);
+        setLimit(limit);
+        setIncompat(incompat);
         setSizeX(sizeX);
         setSizeY(sizeY);
         setSizeZ(sizeZ);
-        setRoomType(roomType);
         setOpenings(openings);
     }
 

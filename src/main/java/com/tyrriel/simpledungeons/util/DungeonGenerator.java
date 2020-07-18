@@ -28,6 +28,7 @@ public class DungeonGenerator {
         world.setGameRule(GameRule.DO_FIRE_TICK, false);
         world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
         world.setGameRule(GameRule.MOB_GRIEFING, false);
+        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
         System.out.println("World created...");
     }
 
@@ -60,7 +61,7 @@ public class DungeonGenerator {
         DungeonUtil.generateBossRoom(dungeonFloor);
         DungeonUtil.generateEndCaps(dungeonFloor);
 
-        System.out.println("Dungeon generation complete!");
+        dungeonFloor.setDungeonFloorConfiguration(dungeonFloorConfiguration);
         return dungeonFloor;
     }
 
@@ -78,12 +79,12 @@ public class DungeonGenerator {
             public void run() {
                 if (roomsToPaste.isEmpty()) {
                     System.out.println("Done pasting rooms...");
-                    SignManager.findTileEntities(dungeonFloor);
+                    dungeonFloor.setReady(true);
                     return;
                 }
 
                 int count = 0;
-                while (count < 10){
+                while (count < 3){
                     count++;
                     DungeonRoom room = roomsToPaste.poll();
                     if (room == null) continue;
@@ -99,6 +100,8 @@ public class DungeonGenerator {
                     } else {
                         WEUtils.pasteFile(tilesetFolder, fileName, world, chunk.getX() * 16, ((level * 16)), chunk.getZ() * 16);
                     }
+
+                    SignManager.findTileEntities(dungeonFloor, room);
 
                     FileManager.log(dungeonFloor.getRooms().indexOf(room) + "/" + (dungeonFloor.getRooms().size()-1) + " completed...");
                 }

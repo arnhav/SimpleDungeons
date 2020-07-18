@@ -1,41 +1,30 @@
 package com.tyrriel.simpledungeons.util;
 
 import com.tyrriel.simpledungeons.objects.*;
+import com.tyrriel.simpledungeons.objects.enums.PortalType;
 import com.tyrriel.simpledungeons.objects.enums.TriggerType;
 import com.tyrriel.simpledungeons.objects.generation.DungeonChunk;
 import com.tyrriel.simpledungeons.objects.generation.DungeonRoom;
 import com.tyrriel.simpledungeons.objects.mechanics.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Rotatable;
 
-import java.util.HashSet;
-
 public class SignManager {
 
-    public static void findTileEntities(DungeonFloor dungeonFloor){
-        System.out.println("Finding TileEntities...");
-        HashSet<DungeonChunk> seen = new HashSet<>();
-        for (DungeonRoom dr : dungeonFloor.getRooms()){
-            for (DungeonChunk dc : dr.getChunks()) {
-                if (seen.contains(dc)) continue;
-                seen.add(dc);
-                World world = Bukkit.getWorld(dc.getWorld());
-                if (world == null) continue;
-                world.getChunkAtAsync(dc.getX(), dc.getZ()).thenAccept(chunk -> {
-                    BlockState[] tileEntities = chunk.getTileEntities();
-                    findAndUnpackSigns(dungeonFloor, tileEntities);
-                });
-            }
+    public static void findTileEntities(DungeonFloor df, DungeonRoom dr){
+        for (DungeonChunk dc : dr.getChunks()) {
+            World world = Bukkit.getWorld(df.getWorld());
+            if (world == null) continue;
+            world.getChunkAtAsync(dc.getX(), dc.getZ()).thenAccept(c ->{
+                BlockState[] tileEntities = c.getTileEntities();
+                findAndUnpackSigns(df, tileEntities);
+            });
         }
-        System.out.println("Done finding TileEntities...");
-        dungeonFloor.setReady(true);
     }
 
-    public static void findAndUnpackSigns(DungeonFloor dungeonFloor, BlockState[] tileEntities){
+    public static void findAndUnpackSigns(DungeonFloor df, BlockState[] tileEntities){
         for (BlockState tileEntity : tileEntities){
             Location location = tileEntity.getLocation();
             Block block = location.getBlock();
@@ -45,17 +34,15 @@ public class SignManager {
             String type = sign.getLine(0);
 
             if (type.equalsIgnoreCase("[START]")){
-                dungeonFloor.setStart(sign.getLocation());
+                df.setStart(location);
                 block.setType(Material.AIR);
             }
             if (type.equalsIgnoreCase("[BOSS]")){
-                String mob = sign.getLine(1);
-                if (mob.equalsIgnoreCase("")) continue;
-                DungeonBoss db = new DungeonBoss(mob, location);
-                if (!addTrigger(dungeonFloor, sign, db))
-                    db.spawn();
-                dungeonFloor.setDungeonBoss(db);
                 block.setType(Material.AIR);
+                DungeonBoss db = new DungeonBoss(df.getDungeonFloorConfiguration().getBoss(), location);
+                if (!addTrigger(df, sign, db))
+                    db.spawn();
+                df.setDungeonBoss(db);
             }
             if (type.equalsIgnoreCase("[DOOR]")){
                 String name = sign.getLine(1);
@@ -64,13 +51,22 @@ public class SignManager {
                 DungeonDoor dd = new DungeonDoor(name, key, block.getWorld());
                 Material mat = Material.getMaterial(sign.getLine(3));
                 dd.setDoorMaterial(mat);
-                dungeonFloor.addDungeonDoor(dd, location);
+                df.addDungeonDoor(dd, location);
             }
             if (type.equalsIgnoreCase("[PORTAL]")){
-                DungeonPortal dp = new DungeonPortal(location);
-                if (!addTrigger(dungeonFloor, sign, dp))
+                String portal = sign.getLine(1);
+                if (portal.equalsIgnoreCase("")) continue;
+                PortalType pt = PortalType.valueOf(portal);
+                DungeonPortal dp = new DungeonPortal(location, pt);
+                if (!addTrigger(df, sign, dp))
                     dp.trigger();
                 block.setType(Material.AIR);
+            }
+            if (type.equalsIgnoreCase("[TRIGGER]")){
+                String name = sign.getLine(1);
+                if (name.equalsIgnoreCase("")) continue;
+                DungeonSignTrigger dst = new DungeonSignTrigger(name, df);
+                addTrigger(df, sign, dst);
             }
             if (type.equalsIgnoreCase("[CHEST]")){
                 Rotatable signData = (Rotatable) block.getBlockData().clone();
@@ -78,27 +74,32 @@ public class SignManager {
                 String loottable = sign.getLine(1);
                 DungeonChest dc = new DungeonChest(location, facing);
                 dc.setLoottable(loottable);
-                dungeonFloor.addChest(location, dc);
-                if (addTrigger(dungeonFloor, sign, dc)) {
-                    block.setType(Material.AIR);
+                df.addChest(location, dc);
+                if (!addTrigger(df, sign, dc)) {
+                    dc.trigger();
                     continue;
                 }
-                dc.trigger();
+                block.setType(Material.AIR);
+                df.addChest(location, dc);
             }
             if (type.equalsIgnoreCase("[MOB]")){
-                String mob = sign.getLine(1);
-                if (mob.equalsIgnoreCase("")) continue;
-                DungeonMob dm = new DungeonMob(mob, location);
-                if (!addTrigger(dungeonFloor, sign, dm))
-                    dm.spawn();
+                String i = sign.getLine(1);
                 block.setType(Material.AIR);
+                if (i.equalsIgnoreCase("")) continue;
+                if (!StringUtils.isNumeric(i)) continue;
+                int index = Integer.parseInt(i);
+                if (df.getDungeonFloorConfiguration().getMobs().size() <= index) continue;
+                String mob = df.getDungeonFloorConfiguration().getMobs().get(index);
+                DungeonMob dm = new DungeonMob(mob, location);
+                if (!addTrigger(df, sign, dm))
+                    dm.spawn();
             }
             if (type.equalsIgnoreCase("[BLOCK]")){
                 Material init = Material.getMaterial(sign.getLine(1));
                 Material triggered = Material.getMaterial(sign.getLine(2));
                 if (init == null || triggered == null) continue;
                 DungeonBlock db = new DungeonBlock(init, triggered, location);
-                addTrigger(dungeonFloor, sign, db);
+                addTrigger(df, sign, db);
                 block.setType(init);
             }
         }
@@ -118,9 +119,17 @@ public class SignManager {
                 dt = new DungeonTrigger(TriggerType.DOOR, thing);
                 dungeonFloor.addTrigger(dt, o);
             }
+            if (line.contains("T")){
+                dt = new DungeonTrigger(TriggerType.GENERIC, thing);
+                dungeonFloor.addTrigger(dt, o);
+            }
         } else {
             if (line.equalsIgnoreCase("BOSS")){
                 dt = new DungeonTrigger(TriggerType.BOSS);
+                dungeonFloor.addTrigger(dt, o);
+            }
+            if (line.equalsIgnoreCase("R")){
+                dt = new DungeonTrigger(TriggerType.REDSTONE, sign.getLocation());
                 dungeonFloor.addTrigger(dt, o);
             }
         }

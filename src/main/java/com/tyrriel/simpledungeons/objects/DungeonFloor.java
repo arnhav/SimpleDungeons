@@ -195,4 +195,22 @@ public class DungeonFloor {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "DungeonFloor{" +
+                "name='" + name + '\'' +
+                ", tileset='" + tileset + '\'' +
+                ", world='" + world + '\'' +
+                ", dungeonFloorConfiguration=" + dungeonFloorConfiguration +
+                ", start=" + start +
+                ", dungeonBoss=" + dungeonBoss +
+                ", rooms=" + rooms +
+                ", roomsToPaste=" + roomsToPaste +
+                ", dungeonDoors=" + dungeonDoors +
+                ", chests=" + chests +
+                ", triggeredObjects=" + triggeredObjects +
+                ", ready=" + ready +
+                '}';
+    }
 }

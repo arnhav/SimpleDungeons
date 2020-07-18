@@ -71,11 +71,7 @@ public class GUIHandler {
             } else {
                 DungeonPlayer dp = dungeonGroup.getPlayers().get(i);
 
-                ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-                SkullMeta sm = (SkullMeta) head.getItemMeta();
-                sm.setOwningPlayer(dp.getPlayer());
-                sm.setDisplayName((dp.isReady() ? ChatColor.GREEN : ChatColor.RED) + dp.getPlayer().getName());
-                head.setItemMeta(sm);
+                ItemStack head = GUIItems.getPlayerHead(dp.getPlayer(), (dp.isReady() ? ChatColor.GREEN : ChatColor.RED) + dp.getPlayer().getName());
 
                 inventory.setItem(i+2, head);
                 inventory.setItem((i+2) + (9*4), dp.isReady() ?

@@ -8,10 +8,11 @@ import com.tyrriel.simpledungeons.objects.generation.*;
 import com.tyrriel.simpledungeons.objects.enums.RoomType;
 import com.tyrriel.simpledungeons.objects.instance.DungeonGroup;
 import com.tyrriel.simpledungeons.util.DungeonManager;
-import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -24,7 +25,9 @@ import java.util.*;
 public class FileManager {
 
     public static FileConfiguration config;
+    public static FileConfiguration data;
 
+    private static File itemsFile;
     private static File log;
 
     public static void createConfig(JavaPlugin plugin){
@@ -46,6 +49,27 @@ public class FileManager {
         }
     }
 
+    public static void createItemsFile(JavaPlugin plugin){
+        try {
+            if (!plugin.getDataFolder().exists()) {
+                plugin.getDataFolder().mkdirs();
+            }
+            itemsFile = new File(plugin.getDataFolder(), "items.yml");
+            data = new YamlConfiguration();
+            if (!itemsFile.exists()) {
+                plugin.getLogger().info("items.yml not found, creating!");
+                data.set("Items.test", new ItemStack(Material.DIAMOND));
+                save(data, itemsFile);
+
+            } else {
+                plugin.getLogger().info("items.yml found, loading!");
+            }
+            loadItems(itemsFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void createLogFile(JavaPlugin plugin) {
         File logsFolder = new File(plugin.getDataFolder(), "logs");
         if (!logsFolder.exists()){
@@ -58,7 +82,7 @@ public class FileManager {
         try {
             fileWriter = new FileWriter(log, true);
             PrintWriter pw = new PrintWriter(fileWriter);
-            pw.println("-===SimpleRegeneration Log " + format.format(date) + "===-");
+            pw.println("-=== SimpleDungeons Log " + format.format(date) + " ===-");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -74,12 +98,31 @@ public class FileManager {
         if (configSection == null) return;
         for (String path : configSection.getKeys(false)){
             String name = configSection.getString(path + ".Name");
-            List<String> tilesets = configSection.getStringList(path + ".Tilesets");
-            DungeonConfiguration dc = new DungeonConfiguration(path, name, tilesets);
+            boolean infinite = configSection.getBoolean(path + ".Infinite");
+            List<String> bosses = configSection.getStringList(path + ".Bosses");
+            List<List<String>> mobSets = new ArrayList<>();
+            ConfigurationSection mobsSection = config.getConfigurationSection("Dungeons." + path + ".MobSets");
+            if (mobsSection != null) {
+                for (String mobPath : mobsSection.getKeys(false)) {
+                    List<String> mobs = mobsSection.getStringList(mobPath);
+                    mobSets.add(mobs);
+                }
+            }
+            HashMap<String, List<String>> lootTables = new HashMap<>();
+            ConfigurationSection lootSection = config.getConfigurationSection("Dungeons." + path + ".LootTables");
+            if (lootSection != null){
+                for (String lootPath : lootSection.getKeys(false)){
+                    List<String> loot = lootSection.getStringList(lootPath);
+                    lootTables.put(lootPath, loot);
+                }
+            }
+            List<String> tilesets = configSection.getStringList(path + ".TileSets");
+            DungeonConfiguration dc = new DungeonConfiguration(path, name, infinite, bosses, mobSets, lootTables, tilesets);
             DungeonManager.dungeonConfigurations.put(path, dc);
+
             List<DungeonGroup> dgs = new ArrayList<>();
             for (int i = 0; i < 6; i++){
-                Dungeon dungeon = new Dungeon(dc);
+                Dungeon dungeon = new Dungeon(dc, 0);
                 DungeonGroup dg = new DungeonGroup(dungeon);
                 dgs.add(dg);
                 dungeon.setDungeonGroup(dg);
@@ -87,18 +130,16 @@ public class FileManager {
             }
             DungeonManager.dungeonGroups.put(dc, dgs);
         }
+    }
 
-        final int[] i = {0};
-        Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, new Runnable() {
-            @Override
-            public void run() {
-                if (DungeonManager.dungeons.size() <= i[0]) return;
-                Dungeon dungeon = DungeonManager.dungeons.get(i[0]);
-                dungeon.createDungeonFloor();
-                i[0]++;
-                Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, this, 15*20);
-            }
-        }, 20);
+    private static void loadItems(File file){
+        data = YamlConfiguration.loadConfiguration(file);
+        ConfigurationSection cs = data.getConfigurationSection("Items");
+        if (cs == null) return;
+        for (String path : cs.getKeys(false)){
+            ItemStack itemStack = cs.getItemStack(path);
+            DungeonManager.dungeonItems.put(path, itemStack);
+        }
     }
 
     public static DungeonFloorConfiguration readTilesetConfig(File folder){
@@ -146,6 +187,9 @@ public class FileManager {
                     }
                 }
 
+                if (limit <= 0)
+                    limit = -1;
+
                 RoomConfiguration roomConfiguration = new RoomConfiguration(schematic, roomType, limit, incompat, sx, sy, sz, openings);
                 rooms.add(roomConfiguration);
             }
@@ -154,18 +198,16 @@ public class FileManager {
         return dungeonFloorConfiguration;
     }
 
-    public static boolean deleteDirectory(File path) {
-        if (path.exists()) {
-            File[] files = path.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    deleteDirectory(files[i]);
-                } else {
-                    files[i].delete();
-                }
-            }
-        }
-        return (path.delete());
+    public static void addItem(String key, ItemStack itemStack){
+        data = YamlConfiguration.loadConfiguration(itemsFile);
+        data.set("Items." + key, itemStack);
+        save(data, itemsFile);
+    }
+
+    public static void deleteItem(String key){
+        data = YamlConfiguration.loadConfiguration(itemsFile);
+        data.set("Items." + key, null);
+        save(data, itemsFile);
     }
 
     public static void log(String message){
@@ -189,5 +231,19 @@ public class FileManager {
             e.printStackTrace();
         }
     }
+    public static boolean deleteDirectory(File path) {
+        if (path.exists()) {
+            File[] files = path.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
+                    deleteDirectory(files[i]);
+                } else {
+                    files[i].delete();
+                }
+            }
+        }
+        return (path.delete());
+    }
+
 
 }

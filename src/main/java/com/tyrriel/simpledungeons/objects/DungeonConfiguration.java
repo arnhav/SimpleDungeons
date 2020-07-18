@@ -1,18 +1,25 @@
 package com.tyrriel.simpledungeons.objects;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class DungeonConfiguration {
 
     private String name, id;
-    private List<String> tilesets;
-    private int floor;
+    private boolean infinite;
+    private List<String> bosses;
+    private List<List<String>> mobSets;
+    private HashMap<String, List<String>> lootTables;
+    private List<String> tileSets;
 
-    public DungeonConfiguration(String id, String name, List<String> tilesets){
+    public DungeonConfiguration(String id, String name, boolean infinite, List<String> bosses, List<List<String>> mobSets, HashMap<String, List<String>> lootTables, List<String> tileSets){
         setId(id);
         setName(name);
-        setTilesets(tilesets);
-        setFloor(0);
+        setInfinite(infinite);
+        setBosses(bosses);
+        setMobSets(mobSets);
+        setLootTables(lootTables);
+        setTileSets(tileSets);
     }
 
     public void setName(String name) {
@@ -23,12 +30,24 @@ public class DungeonConfiguration {
         this.id = id;
     }
 
-    public void setTilesets(List<String> tilesets) {
-        this.tilesets = tilesets;
+    public void setInfinite(boolean infinite) {
+        this.infinite = infinite;
     }
 
-    public void setFloor(int floor) {
-        this.floor = floor;
+    public void setBosses(List<String> bosses) {
+        this.bosses = bosses;
+    }
+
+    public void setMobSets(List<List<String>> mobSets) {
+        this.mobSets = mobSets;
+    }
+
+    public void setLootTables(HashMap<String, List<String>> lootTables) {
+        this.lootTables = lootTables;
+    }
+
+    public void setTileSets(List<String> tileSets) {
+        this.tileSets = tileSets;
     }
 
     public String getName() {
@@ -39,11 +58,23 @@ public class DungeonConfiguration {
         return id;
     }
 
-    public List<String> getTilesets() {
-        return tilesets;
+    public boolean isInfinite() {
+        return infinite;
     }
 
-    public int getFloor() {
-        return floor;
+    public List<String> getBosses() {
+        return bosses;
+    }
+
+    public List<List<String>> getMobSets() {
+        return mobSets;
+    }
+
+    public HashMap<String, List<String>> getLootTables() {
+        return lootTables;
+    }
+
+    public List<String> getTileSets() {
+        return tileSets;
     }
 }

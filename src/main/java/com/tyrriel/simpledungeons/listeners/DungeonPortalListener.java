@@ -3,6 +3,7 @@ package com.tyrriel.simpledungeons.listeners;
 import com.destroystokyo.paper.event.player.PlayerTeleportEndGatewayEvent;
 import com.tyrriel.simpledungeons.SimpleDungeons;
 import com.tyrriel.simpledungeons.objects.Dungeon;
+import com.tyrriel.simpledungeons.objects.DungeonFloor;
 import com.tyrriel.simpledungeons.objects.instance.DungeonGroup;
 import com.tyrriel.simpledungeons.objects.instance.DungeonPlayer;
 import com.tyrriel.simpledungeons.util.DungeonManager;
@@ -32,12 +33,15 @@ public class DungeonPortalListener implements Listener {
         DungeonGroup group = DungeonManager.getDungeonGroup(player);
         if (group == null) return;
         group.removePlayer(dp);
+        DungeonManager.dungeonPlayers.remove(player);
 
         if (group.getPlayers().isEmpty()) {
             Dungeon dungeon = group.getDungeon();
             Bukkit.getScheduler().runTaskLater(SimpleDungeons.simpleDungeons, () -> {
-                if (dungeon.deleteDungeonFloorIfNoMorePlayers())
-                    dungeon.createDungeonFloor();
+                if (DungeonManager.deleteDungeonFloorWorld(dungeon)){
+                    DungeonFloor df = DungeonManager.createDungeonFloorWorld(dungeon, 0);
+                    dungeon.setDungeonFloor(df);
+                }
             }, 20);
         }
     }

@@ -46,10 +46,14 @@ public class RoomConfigurationUtil {
         List<RoomConfiguration> list = new ArrayList<>();
         for (RoomConfiguration rc : rooms){
             if (rc.getOpenings().size() == 1) continue;
-            if (!rc.getOpenings().containsKey(direction)) continue;
             if (rc.getRoomType() != RoomType.GENERIC) continue;
-            if (rc.getLimit() > 0 && getNumRoomConfigsInDungeon(df, rc) > rc.getLimit()) continue;
-            if (prc.getIncompat().contains(rc.getFileName())) continue;
+            if (!rc.getOpenings().containsKey(direction)) continue;
+            if (rc.getLimit() != -1){
+                if (getNumRoomConfigsInDungeon(df, rc) >= rc.getLimit()) continue;
+            }
+            if (!prc.getIncompat().isEmpty()) {
+                if (prc.getIncompat().contains(rc.getFileName())) continue;
+            }
             list.add(rc);
         }
         return list;

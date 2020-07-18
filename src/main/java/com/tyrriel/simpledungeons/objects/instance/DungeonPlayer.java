@@ -11,6 +11,7 @@ public class DungeonPlayer {
     private Location location;
 
     private boolean isReady = false;
+    private boolean isDead = false;
 
     public DungeonPlayer(Player player){
         setPlayer(player);
@@ -28,6 +29,10 @@ public class DungeonPlayer {
         isReady = ready;
     }
 
+    public void setDead(boolean dead) {
+        isDead = dead;
+    }
+
     public Player getPlayer() {
         return player;
     }
@@ -38,6 +43,10 @@ public class DungeonPlayer {
 
     public boolean isReady() {
         return isReady;
+    }
+
+    public boolean isDead() {
+        return isDead;
     }
 
     @Override

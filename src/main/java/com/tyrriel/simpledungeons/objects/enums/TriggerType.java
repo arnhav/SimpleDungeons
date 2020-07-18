@@ -4,6 +4,8 @@ public enum TriggerType {
 
     BOSS,
     MOB,
-    DOOR
+    DOOR,
+    REDSTONE,
+    GENERIC
 
 }

@@ -9,8 +9,11 @@ import com.tyrriel.simpledungeons.objects.DungeonConfiguration;
 import com.tyrriel.simpledungeons.objects.DungeonFloor;
 import com.tyrriel.simpledungeons.objects.instance.DungeonGroup;
 import com.tyrriel.simpledungeons.objects.instance.DungeonPlayer;
+import com.tyrriel.simpledungeons.util.DungeonInstanceUtil;
 import com.tyrriel.simpledungeons.util.DungeonManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,9 +65,13 @@ public class GUIListener implements Listener {
             groups.add(dg);
             DungeonManager.dungeonGroups.put(dc, groups);
 
-            GUIHandler.openGroupGUI(player, dg);
-            GUIHandler.openGUIs.remove(top);
-            updateGUIs();
+            for (DungeonPlayer t : dg.getPlayers()){
+                t.setReady(false);
+                Player gp = t.getPlayer();
+                GUIHandler.openGUIs.remove(gp.getOpenInventory().getTopInventory());
+                GUIHandler.openGroupGUI(gp, dg);
+            }
+            updateGroupSelectionGUIs();
         }
 
         if (guiView == GUIView.GROUP){
@@ -79,7 +86,12 @@ public class GUIListener implements Listener {
                 dg.removePlayer(dp);
                 GUIHandler.openGUIs.remove(player.getOpenInventory().getTopInventory());
                 GUIHandler.openGroupSelectionGUI(player, dg.getDungeon().getDungeonConfiguration());
-                updateGUIs();
+                for (DungeonPlayer t : dg.getPlayers()){
+                    Player gp = t.getPlayer();
+                    GUIHandler.openGUIs.remove(gp.getOpenInventory().getTopInventory());
+                    GUIHandler.openGroupGUI(gp, dg);
+                }
+                updateGroupSelectionGUIs();
                 return;
             }
 
@@ -91,15 +103,21 @@ public class GUIListener implements Listener {
 
 
             if (DungeonManager.areAllPlayersReady(dg)) {
-                dg.setPlayingDungeon(true);
                 Dungeon dungeon = dg.getDungeon();
                 DungeonFloor df = dungeon.getDungeonFloor();
+                if (df.getStart() == null) {
+                    DungeonInstanceUtil.sendAllPlayersInGroupMessage(dg, ChatColor.RED + "Error, start location not found");
+                    return;
+                }
+                dg.setPlayingDungeon(true);
                 for (DungeonPlayer t : dg.getPlayers()){
                     Player gp = t.getPlayer();
                     GUIHandler.openGUIs.remove(gp.getOpenInventory().getTopInventory());
                     gp.closeInventory();
-                    if (df.isReady())
+                    if (df.isReady()) {
+                        gp.setGameMode(GameMode.ADVENTURE);
                         gp.teleport(df.getStart());
+                    }
                 }
             } else {
                 for (DungeonPlayer t : dg.getPlayers()){
@@ -125,7 +143,7 @@ public class GUIListener implements Listener {
                 ,1);
     }
 
-    private void updateGUIs(){
+    private void updateGroupSelectionGUIs(){
         List<OpenGUI> guis = new ArrayList<>(GUIHandler.openGUIs.values());
         for (OpenGUI openGUI : guis){
             if (openGUI.getGuiView() == GUIView.GROUP_SELECTION){
