@@ -1,9 +1,7 @@
 package com.tyrriel.simpledungeons.util;
 
-import com.tyrriel.simpledungeons.SimpleDungeons;
 import com.tyrriel.simpledungeons.data.FileManager;
 import com.tyrriel.simpledungeons.objects.*;
-import com.tyrriel.simpledungeons.objects.generation.DungeonFloorConfiguration;
 import com.tyrriel.simpledungeons.objects.instance.*;
 import org.bukkit.Bukkit;
 import org.bukkit.World;

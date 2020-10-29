@@ -65,7 +65,6 @@ public class DungeonPlayerListener implements Listener {
 
         DungeonPlayer dp = DungeonManager.dungeonPlayers.get(player);
         if (dp == null) return;
-        if (!dp.isDead()) return;
 
         event.setCancelled(true);
     }
@@ -76,6 +75,8 @@ public class DungeonPlayerListener implements Listener {
 
         DungeonPlayer dp = DungeonManager.dungeonPlayers.get(player);
         if (dp == null) return;
+
+        if (dp.isDead()) return;
 
         List<Entity> nearby = player.getNearbyEntities(1, 1, 1);
 

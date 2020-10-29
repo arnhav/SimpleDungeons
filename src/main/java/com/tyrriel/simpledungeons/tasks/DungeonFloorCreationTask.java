@@ -1,4 +1,4 @@
-package com.tyrriel.simpledungeons.monitors;
+package com.tyrriel.simpledungeons.tasks;
 
 import com.tyrriel.simpledungeons.objects.DungeonConfiguration;
 import com.tyrriel.simpledungeons.objects.DungeonFloor;

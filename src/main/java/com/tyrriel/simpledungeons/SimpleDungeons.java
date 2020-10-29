@@ -3,8 +3,8 @@ package com.tyrriel.simpledungeons;
 import com.tyrriel.simpledungeons.commands.*;
 import com.tyrriel.simpledungeons.listeners.*;
 import com.tyrriel.simpledungeons.data.FileManager;
-import com.tyrriel.simpledungeons.monitors.DeadPlayerMonitor;
-import com.tyrriel.simpledungeons.monitors.DungeonFloorCreationTask;
+import com.tyrriel.simpledungeons.tasks.DeadPlayerTask;
+import com.tyrriel.simpledungeons.tasks.DungeonFloorCreationTask;
 import com.tyrriel.simpledungeons.objects.Dungeon;
 import com.tyrriel.simpledungeons.objects.DungeonFloor;
 import com.tyrriel.simpledungeons.objects.instance.DungeonPlayer;
@@ -42,7 +42,7 @@ public final class SimpleDungeons extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new DungeonPortalListener(), this);
         Bukkit.getPluginManager().registerEvents(new DungeonPlayerListener(), this);
 
-        new DeadPlayerMonitor(this);
+        new DeadPlayerTask(this);
         new DungeonFloorCreationTask(this);
 
         bukkitAPIHelper = MythicMobs.inst().getAPIHelper();

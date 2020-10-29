@@ -1,4 +1,4 @@
-package com.tyrriel.simpledungeons.monitors;
+package com.tyrriel.simpledungeons.tasks;
 
 import com.tyrriel.simpledungeons.objects.instance.DungeonPlayer;
 import com.tyrriel.simpledungeons.util.DungeonManager;
@@ -7,9 +7,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class DeadPlayerMonitor implements Runnable {
+public class DeadPlayerTask implements Runnable {
 
-    public DeadPlayerMonitor(JavaPlugin plugin){
+    public DeadPlayerTask(JavaPlugin plugin){
         Bukkit.getScheduler().runTaskTimer(plugin, this, 0, 20);
     }
 
